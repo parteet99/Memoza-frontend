@@ -14,6 +14,9 @@ import {
     PanelLeftClose,
     PanelLeftOpen,
 } from "lucide-react";
+import ThemeToggle from "../theme/ThemeToggle";
+import Logout from "../auth/Logout";
+import Image from "next/image";
 
 const navigation = [
     {
@@ -39,24 +42,27 @@ const workspaceNavigation = [
         href: "/folders",
         icon: Folder,
     },
-    {
-        title: "Tags",
-        href: "/tags",
-        icon: Tags,
-    },
+    // {
+    //     title: "Tags",
+    //     href: "/tags",
+    //     icon: Tags,
+    // },
 ];
 
 const bottomNavigation = [
-    {
-        title: "Settings",
-        href: "/settings",
-        icon: Settings,
-    },
     {
         title: "Profile",
         href: "/profile",
         icon: User,
     },
+    {
+        title: "Theme",
+        component: ThemeToggle
+    },
+    {
+        title: "Logout",
+        component: Logout
+    }
 ];
 
 export default function Sidebar() {
@@ -95,20 +101,18 @@ export default function Sidebar() {
             >
                 {/* Logo */}
                 <Link
-                    href="/"
+                    href="/notes"
                     className="flex min-w-0 items-center gap-3"
                 >
                     <div
                         className="
                             flex h-9 w-9 shrink-0
                             items-center justify-center
-                            rounded-xl
-                            bg-[var(--primary)]
                             text-sm font-bold
                             text-[var(--primary-foreground)]
                         "
                     >
-                        M
+                        <Image src="/M.png" width={150} height={150} alt="Memoza" className="rounded-md"/>
                     </div>
 
                     {!collapsed && (
@@ -168,7 +172,7 @@ export default function Sidebar() {
             )}
 
             {/* Navigation */}
-            <nav className="flex-1 overflow-y-auto px-3 py-4">
+            <nav className="flex-1 overflow-y-auto px-3 py-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
                 {/* Main navigation */}
                 <div className="space-y-1">
                     {navigation.map((item) => {
@@ -292,6 +296,12 @@ export default function Sidebar() {
             >
                 <div className="space-y-1">
                     {bottomNavigation.map((item) => {
+                        if (item.component) {
+                            const Component = item.component;
+                            return (
+                                <Component key={item.title} collapsed={collapsed} />
+                            )
+                        }
                         const Icon = item.icon;
                         const active = isActive(item.href);
 
