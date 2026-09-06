@@ -42,6 +42,7 @@ next-themes
 lucide-react   (icon pack)
 axios
 sonner (for notifications)
+js-cookie
 
 
 <!-- IMPORTANT -->

@@ -1,11 +1,12 @@
 import Image from "next/image";
 import ThemeToggle from "@/components/theme/ThemeToggle";
 import Logout from "@/components/auth/Logout";
+import AllNotes from "@/components/notes/AllNotes";
 
 export default function Home() {
   return (
     <main className="min-h-screen bg-[var(--background)] text-[var(--foreground)]">
-      <div className="mx-auto flex min-h-screen max-w-6xl flex-col px-6 py-6">
+      {/* <div className="mx-auto flex min-h-screen max-w-6xl flex-col px-6 py-6">
 
         <header className="flex items-center justify-between">
           <h1 className="text-2xl font-bold">
@@ -49,7 +50,9 @@ export default function Home() {
             </button>
           </div>
         </section>
-      </div>
+      </div> */}
+
+      <AllNotes />
 
     </main>
   );

@@ -38,11 +38,12 @@ export default function LoginPage() {
             )
             if (res?.data?.success) {
                 notify.success(res?.data?.message || "Login successful");
+                console.log({res})
                 const userId = res?.data?.user?.id;
                 if (userId) {
                     document.cookie = `userId=${userId}; path=/; max-age=${60*60*24*7};` //7 days
                 }
-                router.push("/");
+                router.push("/notes");
             }
         } catch (err) {
             console.error("Login error", err);
