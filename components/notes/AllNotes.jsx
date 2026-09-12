@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import NoteModal from "./NoteModal";
-import { Eye, Trash2, FolderUp } from "lucide-react";
+import { Eye, Trash2, FolderUp, Pin, Star, PinOff, StarOff } from "lucide-react";
 import ConfirmationModal from "../ui/ConfirmationModal";
 import api from "@/lib/api";
 import { notify } from "@/lib/notification";
@@ -22,7 +22,6 @@ export default function AllNotes({ notes }) {
     const [deleting, setDeleting] = useState(false);
     const [openFolderSelector, setOpenFolderSelector] = useState(false);
     const [noteId, setNoteId] = useState(null);
-    const [openMenuId, setOpenMenuId] = useState(null);
 
     useEffect(() => {
         setNoteList(notes?.notes || []);
@@ -85,6 +84,36 @@ export default function AllNotes({ notes }) {
         }
     }
 
+    const handlePinNote = async (noteId, isPinned) => {
+        try {
+            const res = await api.post("/notes/pin-note", {
+                id: noteId,
+                is_pinned: !isPinned
+            })
+            if (res?.data?.success) {
+                notify.success(res?.data?.message || (isPinned ?  "Note Unpinned successfully" : "Note pinned successfully"));
+                router.refresh();
+            }
+        } catch (error) {
+            console.error("Error pinning note", error);
+        }
+    }
+
+    const handleStarNote = async (noteId, isStarred) => {
+        try {
+            const res = await api.post("/notes/favorite-note", {
+                id: noteId,
+                is_favorite: !isStarred
+            })
+            if (res?.data?.success) {
+                notify.success(res?.data?.message || (isStarred ?  "Note removed from favorite successfully" : "Note added to favorite successfully"));
+                router.refresh();
+            }
+        } catch (error) {
+            console.error("Error starring note", error);
+        }
+    }
+
     return (
         <>
             <div className="p-6">
@@ -128,37 +157,45 @@ export default function AllNotes({ notes }) {
                                         ).toLocaleDateString()}
                                     </span>
 
-                                    {note.is_pinned && (
-                                        <span className="text-gray-700 dark:text-gray-300">
-                                            Pinned
-                                        </span>
-                                    )}
+                                    <div className="flex items-center gap-2">
+                                        {note.is_pinned && (
+                                            <span className="text-gray-700 dark:text-gray-300">
+                                                <Pin size={14} />
+                                            </span>
+                                        )}
+                                        {note.is_favorite && (
+                                            <span className="text-gray-700 dark:text-gray-300">
+                                                <Star size={14} />
+                                            </span>
+                                        )}
+                                    </div>
+
                                 </div>
 
                                 <div
-                                    className="absolute inset-0 flex items-center justify-center gap-3 bg-black-30 backdrop-blur-sm opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+                                    className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-black-30 backdrop-blur-sm opacity-0 transition-opacity duration-300 group-hover:opacity-100"
                                 >
-                                    <button
-                                        type="button"
-                                        title="view note"
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            handleNoteClick(note);
-                                        }}
-                                        className="flex h-12 w-12 items-center justify-center rounded-full bg-white/90 text-gray-800 shadow-lg transition hover:scale-110 hover:bg-white dark:bg-gray-800/90 dark:text-white dark:hover:bg-gray-800 cursor-pointer"
-                                    >
-                                        <Eye size={14} />
-                                    </button>
-
-                                    <button
-                                        type="button"
-                                        title="delete note"
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            setDeleteNoteId(note.id);
-                                            setShowDeleteModal(true);
-                                        }}
-                                        className="
+                                    <div className="flex items-center justify-center gap-3">
+                                        <button
+                                            type="button"
+                                            title="view note"
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                handleNoteClick(note);
+                                            }}
+                                            className="flex h-12 w-12 items-center justify-center rounded-full bg-white/90 text-gray-800 shadow-lg transition hover:scale-110 hover:bg-white dark:bg-gray-800/90 dark:text-white dark:hover:bg-gray-800 cursor-pointer"
+                                        >
+                                            <Eye size={14} />
+                                        </button>
+                                        <button
+                                            type="button"
+                                            title="delete note"
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                setDeleteNoteId(note.id);
+                                                setShowDeleteModal(true);
+                                            }}
+                                            className="
                                             flex h-12 w-12 items-center justify-center
                                             rounded-full
                                             bg-red-500/90
@@ -169,18 +206,18 @@ export default function AllNotes({ notes }) {
                                             hover:bg-red-600
                                             cursor-pointer
                                         "
-                                    >
-                                        <Trash2 size={14} />
-                                    </button>
-                                    <button
-                                        type="button"
-                                        title="delete note"
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            setOpenFolderSelector(true);
-                                            setNoteId(note.id);
-                                        }}
-                                        className="
+                                        >
+                                            <Trash2 size={14} />
+                                        </button>
+                                        <button
+                                            type="button"
+                                            title="delete note"
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                setOpenFolderSelector(true);
+                                                setNoteId(note.id);
+                                            }}
+                                            className="
                                             flex h-12 w-12 items-center justify-center
                                             rounded-full
                                             bg-white/90
@@ -193,9 +230,59 @@ export default function AllNotes({ notes }) {
                                             dark:hover:bg-gray-800
                                             cursor-pointer
                                         "
-                                    >
-                                        <FolderUp size={14} />
-                                    </button>
+                                        >
+                                            <FolderUp size={14} />
+                                        </button>
+                                    </div>
+
+                                    <div className="flex items-center justify-center gap-3">
+                                        <button
+                                            type="button"
+                                            title={note.is_pinned ? "Unpin note": "Pin note"}
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                handlePinNote(note.id, note.is_pinned)
+                                            }}
+                                            className="
+                                                flex h-12 w-12 items-center justify-center
+                                                rounded-full
+                                                bg-white/90
+                                                dark:bg-gray-800/90
+                                                text-white
+                                                shadow-lg
+                                                transition
+                                                hover:scale-110
+                                                hover:bg-white
+                                                dark:hover:bg-gray-800
+                                                cursor-pointer
+                                            "
+                                        >
+                                            {note.is_pinned ? <PinOff size={14} />  : <Pin size={14} />}
+                                        </button>
+                                        <button
+                                            type="button"
+                                            title={note.is_favorite ? "Unstar note": "Star note"}
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                handleStarNote(note.id, note.is_favorite);
+                                            }}
+                                            className="
+                                                flex h-12 w-12 items-center justify-center
+                                                rounded-full
+                                                bg-white/90
+                                                dark:bg-gray-800/90
+                                                text-white
+                                                shadow-lg
+                                                transition
+                                                hover:scale-110
+                                                hover:bg-white
+                                                dark:hover:bg-gray-800
+                                                cursor-pointer
+                                            "
+                                        >
+                                            {note.is_favorite ? <StarOff size={14} />  : <Star size={14} />}
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         ))}
