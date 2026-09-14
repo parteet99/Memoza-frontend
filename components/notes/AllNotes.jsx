@@ -136,10 +136,7 @@ export default function AllNotes({ notes }) {
                         {noteList.map((note) => (
                             <div
                                 key={note.id}
-                                onClick={() =>
-                                    handleNoteClick(note)
-                                }
-                                className="group relative overflow-hidden rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition hover:-translate-y-1 hover:shadow-md dark:border-gray-700 dark:bg-gray-900"
+                                className="group relative overflow-hidden rounded-xl border border-gray-500 p-5 shadow-sm transition hover:-translate-y-1 hover:shadow-md"
                             >
                                 {/* Title */}
                                 <h3 className="mb-2 truncate text-lg font-semibold text-gray-900 dark:text-white">
