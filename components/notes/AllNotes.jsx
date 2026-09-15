@@ -136,7 +136,7 @@ export default function AllNotes({ notes }) {
                         {noteList.map((note) => (
                             <div
                                 key={note.id}
-                                className="group relative overflow-hidden rounded-xl border border-gray-500 p-5 shadow-sm transition hover:-translate-y-1 hover:shadow-md"
+                                className="group relative overflow-hidden rounded-xl border border-gray-300 p-5 shadow-sm transition hover:-translate-y-1 hover:shadow-md"
                             >
                                 {/* Title */}
                                 <h3 className="mb-2 truncate text-lg font-semibold text-gray-900 dark:text-white">
@@ -214,19 +214,7 @@ export default function AllNotes({ notes }) {
                                                 setOpenFolderSelector(true);
                                                 setNoteId(note.id);
                                             }}
-                                            className="
-                                            flex h-12 w-12 items-center justify-center
-                                            rounded-full
-                                            bg-white/90
-                                            dark:bg-gray-800/90
-                                            text-white
-                                            shadow-lg
-                                            transition
-                                            hover:scale-110
-                                            hover:bg-white
-                                            dark:hover:bg-gray-800
-                                            cursor-pointer
-                                        "
+                                            className="flex h-12 w-12 items-center justify-center rounded-full bg-white/90 text-gray-800 shadow-lg transition hover:scale-110 hover:bg-white dark:bg-gray-800/90 dark:text-white dark:hover:bg-gray-800 cursor-pointer"
                                         >
                                             <FolderUp size={14} />
                                         </button>
@@ -240,19 +228,7 @@ export default function AllNotes({ notes }) {
                                                 e.stopPropagation();
                                                 handlePinNote(note.id, note.is_pinned)
                                             }}
-                                            className="
-                                                flex h-12 w-12 items-center justify-center
-                                                rounded-full
-                                                bg-white/90
-                                                dark:bg-gray-800/90
-                                                text-white
-                                                shadow-lg
-                                                transition
-                                                hover:scale-110
-                                                hover:bg-white
-                                                dark:hover:bg-gray-800
-                                                cursor-pointer
-                                            "
+                                            className="flex h-12 w-12 items-center justify-center rounded-full bg-white/90 text-gray-800 shadow-lg transition hover:scale-110 hover:bg-white dark:bg-gray-800/90 dark:text-white dark:hover:bg-gray-800 cursor-pointer"
                                         >
                                             {note.is_pinned ? <PinOff size={14} />  : <Pin size={14} />}
                                         </button>
@@ -263,19 +239,7 @@ export default function AllNotes({ notes }) {
                                                 e.stopPropagation();
                                                 handleStarNote(note.id, note.is_favorite);
                                             }}
-                                            className="
-                                                flex h-12 w-12 items-center justify-center
-                                                rounded-full
-                                                bg-white/90
-                                                dark:bg-gray-800/90
-                                                text-white
-                                                shadow-lg
-                                                transition
-                                                hover:scale-110
-                                                hover:bg-white
-                                                dark:hover:bg-gray-800
-                                                cursor-pointer
-                                            "
+                                            className="flex h-12 w-12 items-center justify-center rounded-full bg-white/90 text-gray-800 shadow-lg transition hover:scale-110 hover:bg-white dark:bg-gray-800/90 dark:text-white dark:hover:bg-gray-800 cursor-pointer"
                                         >
                                             {note.is_favorite ? <StarOff size={14} />  : <Star size={14} />}
                                         </button>
