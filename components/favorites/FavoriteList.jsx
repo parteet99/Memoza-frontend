@@ -106,6 +106,11 @@ export default function FavoriteList({ notes }) {
                                         note.updated_at
                                     ).toLocaleDateString()}
                                 </span>
+                                {note.is_favorite && (
+                                    <span className="text-gray-700 dark:text-gray-300">
+                                        <Star size={14} />
+                                    </span>
+                                )}
                             </div>
 
                             <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-black-30 backdrop-blur-sm opacity-0 transition-opacity duration-300 group-hover:opacity-100">
@@ -150,16 +155,7 @@ export default function FavoriteList({ notes }) {
                                             e.stopPropagation();
                                             handleStarNote(note.id, note.is_favorite);
                                         }}
-                                        className="
-                                                flex h-12 w-12 items-center justify-center
-                                                rounded-full
-                                                shadow-lg
-                                                transition
-                                                hover:scale-110
-                                                hover:bg-white
-                                                dark:hover:bg-gray-800
-                                                cursor-pointer
-                                            "
+                                        className="flex h-12 w-12 items-center justify-center rounded-full bg-white/90 text-gray-800 shadow-lg transition hover:scale-110 hover:bg-white dark:bg-gray-800/90 dark:text-white dark:hover:bg-gray-800 cursor-pointer"
                                     >
                                         {note.is_favorite ? <StarOff size={14} /> : <Star size={14} />}
                                     </button>
