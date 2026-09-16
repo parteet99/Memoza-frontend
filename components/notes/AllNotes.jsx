@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import NoteModal from "./NoteModal";
-import { Eye, Trash2, FolderUp, Pin, Star, PinOff, StarOff } from "lucide-react";
+import { Eye, Trash2, FolderUp, Pin, Star, PinOff, StarOff, Archive } from "lucide-react";
 import ConfirmationModal from "../ui/ConfirmationModal";
 import api from "@/lib/api";
 import { notify } from "@/lib/notification";
@@ -109,6 +109,21 @@ export default function AllNotes({ notes }) {
             }
         } catch (error) {
             console.error("Error starring note", error);
+        }
+    }
+
+    const handleArchiveNote = async (noteId, isArchived) => {
+        try {
+            const res = await api.post("/notes/archive-note", {
+                id: noteId,
+                is_archived: !isArchived
+            })
+            if (res?.data?.success) {
+                notify.success(res?.data?.message || "Note archived successfully");
+                router.refresh();
+            }
+        } catch (error) {
+            console.error("Error archiving note", error);
         }
     }
 
@@ -240,6 +255,17 @@ export default function AllNotes({ notes }) {
                                             className="flex h-12 w-12 items-center justify-center rounded-full bg-white/90 text-gray-800 shadow-lg transition hover:scale-110 hover:bg-white dark:bg-gray-800/90 dark:text-white dark:hover:bg-gray-800 cursor-pointer"
                                         >
                                             {note.is_favorite ? <StarOff size={14} />  : <Star size={14} />}
+                                        </button>
+                                        <button
+                                            type="button"
+                                            title="Archive note"
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                handleArchiveNote(note.id, note.is_archived);
+                                            }}
+                                            className="flex h-12 w-12 items-center justify-center rounded-full bg-white/90 text-gray-800 shadow-lg transition hover:scale-110 hover:bg-white dark:bg-gray-800/90 dark:text-white dark:hover:bg-gray-800 cursor-pointer"
+                                        >
+                                            <Archive size={14} />
                                         </button>
                                     </div>
                                 </div>

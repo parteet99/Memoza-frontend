@@ -8,8 +8,7 @@ import {
     Star,
     Trash2,
     Folder,
-    Tags,
-    Settings,
+    Archive,
     User,
     PanelLeftClose,
     PanelLeftOpen,
@@ -42,11 +41,11 @@ const workspaceNavigation = [
         href: "/folders",
         icon: Folder,
     },
-    // {
-    //     title: "Tags",
-    //     href: "/tags",
-    //     icon: Tags,
-    // },
+    {
+        title: "Archives",
+        href: "/archive",
+        icon: Archive,
+    },
 ];
 
 const bottomNavigation = [
