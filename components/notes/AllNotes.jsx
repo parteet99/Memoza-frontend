@@ -62,13 +62,11 @@ export default function AllNotes({ notes }) {
         setShowCreateModal(false);
     };
 
-    const handleDeleteNote = async () => {
+    const handleMoveToTrash = async () => {
         try {
             setDeleting(true);
-            const res = await api.delete("/notes/delete-note", {
-                data: {
-                    id: deleteNoteId
-                }
+            const res = await api.post("/notes/delete-note", {
+                id: deleteNoteId
             });
             if (res?.data?.success) {
                 notify.success(res?.data?.message || "Note deleted successfully");
@@ -284,13 +282,13 @@ export default function AllNotes({ notes }) {
 
             <ConfirmationModal
                 isOpen={showDeleteModal}
-                title="Delete note?"
-                message="Are you sure you want to delete this note? This action cannot be undone."
+                title="Move note to tras?"
+                message="Are you sure you want to move this note to trash? You can restore from trash anytime."
                 actionText={deleting ? "Deleting..." : "Delete"}
                 cancelText="Cancel"
                 onCancel={() => setShowDeleteModal(false)}
                 onAction={() => {
-                    handleDeleteNote();
+                    handleMoveToTrash();
                 }}
             />
 
