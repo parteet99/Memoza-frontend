@@ -1,6 +1,6 @@
 "use client"
 import { useState } from "react";
-import { Trash2, Eye, Check } from "lucide-react";
+import { Trash2, Eye, Check, RotateCcw } from "lucide-react";
 import ConfirmationModal from "./ui/ConfirmationModal";
 import NoteModal from "./notes/NoteModal";
 import { notify } from "@/lib/notification";
@@ -67,6 +67,28 @@ export default function TrashFile({ notes }) {
             setDeleting(false);
         }
     }
+
+    const handleRestoreNote = async () => {
+        if (deleteNoteId.length === 0) return;
+
+        try {
+            setDeleting(true);
+            const res = await api.post("/notes/restore-note", {
+                ids: deleteNoteId
+            })
+            if (res?.data?.success) {
+                notify.success(res?.data?.message || "Note restores successfully");
+                setNoteList((prev) => prev.filter((note) => !deleteNoteId.includes(note.id)));
+
+                setDeleteNoteId([]);
+            }
+        } catch (error) {
+            console.error("Failed to restore note", error);
+            notify.error(error?.response?.data?.message || "Cannot restore note")
+        } finally {
+            setDeleting(false);
+        }
+    }
     return (
         <div className="p-6">
             <div className="mb-6 flex items-center justify-between">
@@ -85,14 +107,24 @@ export default function TrashFile({ notes }) {
                         </button>
 
                         {deleteNoteId.length > 0 && (
-                            <button
-                                type="button"
-                                onClick={()=> setShowDeleteModal(true)}
-                                className="flex items-center gap-2 rounded-lg bg-red-500 px-4 py-2 text-sm font-medium text-white transition hover:bg-red-600"
-                            >
-                                <Trash2 size={16} />
-                                Delete selected ({deleteNoteId.length})
-                            </button>
+                            <div className="flex items-center gap-3">
+                                <button
+                                    type="button"
+                                    onClick={handleRestoreNote}
+                                    className="flex items-center gap-2 rounded-lg bg-green-500 px-4 py-2 text-sm font-medium text-white transition hover:bg-green-600"
+                                >
+                                    <RotateCcw size={16} />
+                                    Restore selected ({deleteNoteId.length})
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => setShowDeleteModal(true)}
+                                    className="flex items-center gap-2 rounded-lg bg-red-500 px-4 py-2 text-sm font-medium text-white transition hover:bg-red-600"
+                                >
+                                    <Trash2 size={16} />
+                                    Delete selected ({deleteNoteId.length})
+                                </button>
+                            </div>
                         )}
                     </div>
                 )}
@@ -169,6 +201,18 @@ export default function TrashFile({ notes }) {
                                                 }`}
                                         >
                                             <Trash2 size={14} />
+                                        </button>
+                                        <button
+                                            type="button"
+                                            title="Restore note"
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                setDeleteNoteId([note.id])
+                                                handleRestoreNote()
+                                            }}
+                                            className={`flex h-12 w-12 cursor-pointer items-center justify-center rounded-full shadow-lg transition hover:scale-110 bg-white/90 text-gray-800 dark:bg-gray-800/90 dark:text-white`}
+                                        >
+                                            <RotateCcw size={14} />
                                         </button>
                                     </div>
                                 </div>
