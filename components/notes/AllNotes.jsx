@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import NoteModal from "./NoteModal";
-import { Eye, Trash2, FolderUp, Pin, Star, PinOff, StarOff, Archive } from "lucide-react";
+import { Eye, Trash2, FolderUp, Pin, Star, PinOff, StarOff, Archive, Search, Plus } from "lucide-react";
 import ConfirmationModal from "../ui/ConfirmationModal";
 import api from "@/lib/api";
 import { notify } from "@/lib/notification";
@@ -22,10 +22,41 @@ export default function AllNotes({ notes }) {
     const [deleting, setDeleting] = useState(false);
     const [openFolderSelector, setOpenFolderSelector] = useState(false);
     const [noteId, setNoteId] = useState(null);
+    const [search, setSearch] = useState("");
+    const [searching, setSearching] = useState(false);
 
     useEffect(() => {
         setNoteList(notes?.notes || []);
     }, [notes]);
+
+    useEffect(() => {
+        const timer = setTimeout(async () => {
+            const query = search.trim();
+
+            if (!query) {
+                setNoteList(notes?.notes || []);
+                return;
+            }
+
+            try {
+                setSearching(true);
+                const res = await api.get("/notes/search-note", {
+                    params: {
+                        query
+                    }
+                })
+                if (res?.data?.success) {
+                    setNoteList(res?.data?.notes || []);
+                }
+            } catch (error) {
+                console.error("Error searching notes", error)
+            } finally {
+                setSearching(false);
+            }
+        }, 500)
+
+        return () => clearTimeout(timer);
+    },[search, notes])
 
     const handleNoteClick = (note) => {
         setSelectedNote(note);
@@ -131,17 +162,33 @@ export default function AllNotes({ notes }) {
         <>
             <div className="p-6">
                 {/* Header */}
-                <div className="mb-6 flex items-center justify-between">
+                <div className="mb-6 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
                     <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
                         All Notes
                     </h1>
 
-                    <button
-                        onClick={() => setShowCreateModal(true)}
-                        className="rounded-lg bg-black px-4 py-2 text-sm font-medium text-white transition hover:bg-gray-800 dark:bg-white dark:text-black dark:hover:bg-gray-200"
-                    >
-                        + New Note
-                    </button>
+                    <div className="flex w-full flex-col gap-3 sm:flex-row lg:w-auto lg:items-center">
+                        <div className="relative w-full sm:w-80">
+                            <Search
+                                size={18}
+                                className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+                            />
+                            <input
+                                type="search"
+                                value={search}
+                                onChange={(e) => setSearch(e.target.value)}
+                                placeholder="Search notes"
+                                className="h-10 w-full rounded-lg border border-gray-300 bg-white pl-10 pr-3 text-sm text-gray-900 outline-none transition placeholder:text-gray-400 focus:border-gray-500 focus:ring-2 focus:ring-gray-200 dark:border-gray-700 dark:bg-gray-900 dark:text-white dark:focus:border-gray-500 dark:focus:ring-gray-800"
+                            />
+                        </div>
+                        <button
+                            onClick={() => setShowCreateModal(true)}
+                            className="flex h-10 items-center justify-center gap-2 rounded-lg bg-black px-4 text-sm font-medium text-white transition hover:bg-gray-800 dark:bg-white dark:text-black dark:hover:bg-gray-200"
+                        >
+                            <Plus size={16} />
+                            New Note
+                        </button>
+                    </div>
                 </div>
 
                 {noteList.length > 0 ? (
@@ -275,17 +322,19 @@ export default function AllNotes({ notes }) {
                 ) : (
                     <div className="flex min-h-[300px] flex-col items-center justify-center">
                         <p className="mb-4 text-gray-500 dark:text-gray-400">
-                            No notes found
+                            {search.trim() ? "No notes match your search" : "No notes found"}
                         </p>
 
-                        <button
-                            onClick={() =>
-                                setShowCreateModal(true)
-                            }
-                            className="rounded-lg bg-black px-4 py-2 text-sm text-white dark:bg-white dark:text-black"
-                        >
-                            Create your first note
-                        </button>
+                        {!search.trim() && (
+                            <button
+                                onClick={() =>
+                                    setShowCreateModal(true)
+                                }
+                                className="rounded-lg bg-black px-4 py-2 text-sm text-white dark:bg-white dark:text-black"
+                            >
+                                Create your first note
+                            </button>
+                        )}
                     </div>
                 )}
             </div>
