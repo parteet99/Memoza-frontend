@@ -36,7 +36,7 @@ export default function ConfirmationModal({
                     <button
                         type="button"
                         onClick={onCancel}
-                        className="rounded-lg border border-gray-200 px-3 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-100 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800"
+                        className="rounded-lg border border-gray-200 px-3 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-100 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800 cursor-pointer"
                     >
                         {cancelText}
                     </button>
@@ -44,7 +44,7 @@ export default function ConfirmationModal({
                     <button
                         type="button"
                         onClick={onAction}
-                        className="rounded-lg bg-black px-3 py-2 text-sm font-medium text-white transition hover:bg-gray-800 dark:bg-white dark:text-black dark:hover:bg-gray-200"
+                        className="rounded-lg bg-black px-3 py-2 text-sm font-medium text-white transition hover:bg-gray-800 dark:bg-white dark:text-black dark:hover:bg-gray-200 cursor-pointer"
                     >
                         {actionText}
                     </button>

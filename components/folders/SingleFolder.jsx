@@ -53,38 +53,25 @@ export default function SingleFolder({ folder }) {
         router.refresh();
     };
 
-    const handleDeleteNote = async () => {
+    const handleMoveToTrash = async () => {
         try {
             setDeleting(true);
-
-            const res = await api.delete("/notes/delete-note", {
-                data: {
-                    id: deleteNoteId,
-                },
+            const res = await api.post("/notes/delete-note", {
+                id: deleteNoteId
             });
-
             if (res?.data?.success) {
-                notify.success(
-                    res?.data?.message || "Note deleted successfully"
-                );
-
-                setNoteList((prevNotes) =>
-                    prevNotes.filter((note) => note.id !== deleteNoteId)
-                );
-
+                notify.success(res?.data?.message || "Note deleted successfully");
+                router.refresh();
                 setShowDeleteModal(false);
                 setDeleteNoteId(null);
             }
         } catch (err) {
             console.error("Failed to delete note", err);
-
-            notify.error(
-                err?.response?.data?.message || "Cannot delete note"
-            );
+            notify.error(err?.response?.data?.message || "Cannot delete note")
         } finally {
             setDeleting(false);
         }
-    };
+    }
 
     return (
         <>
@@ -96,8 +83,8 @@ export default function SingleFolder({ folder }) {
                         </h1>
 
                         <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                            {folder.length}{" "}
-                            {folder.length === 1 ? "note" : "notes"}
+                            {folder?.length}{" "}
+                            {folder?.length === 1 ? "note" : "notes"}
                         </p>
                     </div>
 
@@ -196,7 +183,7 @@ export default function SingleFolder({ folder }) {
             <ConfirmationModal
                 isOpen={showDeleteModal}
                 title="Delete note?"
-                message="Are you sure you want to delete this note? This action cannot be undone."
+                message="Are you sure you want to move this note to trash? You can restore from trash anytime"
                 actionText={deleting ? "Deleting..." : "Delete"}
                 cancelText="Cancel"
                 onCancel={() => {
@@ -205,7 +192,7 @@ export default function SingleFolder({ folder }) {
                         setDeleteNoteId(null);
                     }
                 }}
-                onAction={handleDeleteNote}
+                onAction={handleMoveToTrash}
             />
         </>
     );

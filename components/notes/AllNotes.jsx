@@ -196,7 +196,7 @@ export default function AllNotes({ notes }) {
                         {noteList.map((note) => (
                             <div
                                 key={note.id}
-                                className="group relative overflow-hidden rounded-xl border border-gray-300 p-5 shadow-sm transition hover:-translate-y-1 hover:shadow-md"
+                                className="group relative overflow-hidden rounded-xl border dark:border-gray-700 border-gray-300 p-5 shadow-sm transition hover:-translate-y-1 hover:shadow-md"
                             >
                                 {/* Title */}
                                 <h3 className="mb-2 truncate text-lg font-semibold text-gray-900 dark:text-white">
@@ -358,7 +358,7 @@ export default function AllNotes({ notes }) {
             <ConfirmationModal
                 isOpen={showDeleteModal}
                 title="Move note to tras?"
-                message="Are you sure you want to move this note to trash? You can restore from trash anytime."
+                message="Are you sure you want to move this note to trash? You can restore from trash anytime"
                 actionText={deleting ? "Deleting..." : "Delete"}
                 cancelText="Cancel"
                 onCancel={() => setShowDeleteModal(false)}
