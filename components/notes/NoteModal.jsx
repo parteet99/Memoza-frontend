@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { Sparkles, X } from "lucide-react";
 import api from "@/lib/api";
 import { notify } from "@/lib/notification";
 
@@ -14,6 +15,9 @@ export default function NoteModal({ note, onClose, onUpdated, onCreated, isDelet
     const [isEditing, setIsEditing] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
 
+    const [summary, setSummary] = useState("");
+    const [isSummarizing, setIsSummarizing] = useState(false);
+
     useEffect(() => {
         if (note) {
             setFormData({
@@ -21,6 +25,7 @@ export default function NoteModal({ note, onClose, onUpdated, onCreated, isDelet
                 content: note.content || ""
             });
 
+            setSummary("");
             setIsEditing(false);
         } else {
             setFormData({
@@ -28,6 +33,7 @@ export default function NoteModal({ note, onClose, onUpdated, onCreated, isDelet
                 content: ""
             })
 
+            setSummary("");
             setIsEditing(true);
         }
     }, [note]);
@@ -56,6 +62,29 @@ export default function NoteModal({ note, onClose, onUpdated, onCreated, isDelet
         })
         setIsEditing(false);
     };
+
+    const handleSummarize = async () => {
+        if (!note?.content?.trim()) {
+            notify.error("There is no content to summarize");
+            return;
+        }
+
+        try {
+            setIsSummarizing(true);
+            const res = await api.post("/ai/summarize", {
+                content: note.content
+            })
+            if (res?.data?.success) {
+                setSummary(res?.data.summary || "");
+                notify.success("Note summarized successfully");
+            }
+        } catch (error) {
+            console.error("Summarize note error", error);
+            notify.error(error?.response?.data?.message || "Failed to summarize note");
+        } finally {
+            setIsSummarizing(false);
+         }
+    }
 
     const handleSave = async (e) => {
         e.preventDefault();
@@ -113,9 +142,9 @@ export default function NoteModal({ note, onClose, onUpdated, onCreated, isDelet
 
                     <button
                         onClick={onClose}
-                        className="rounded-lg px-3 py-1 text-2xl leading-none text-gray-400 transition hover:bg-gray-100 hover:text-gray-700 dark:hover:bg-gray-800 dark:hover:text-gray-200"
+                        className="rounded-lg cursor-pointer px-3 py-1 text-2xl leading-none text-gray-400 transition hover:bg-gray-100 hover:text-gray-700 dark:hover:bg-gray-800 dark:hover:text-gray-200"
                     >
-                        ×
+                        <X size={20} />
                     </button>
                 </div>
 
@@ -150,7 +179,7 @@ export default function NoteModal({ note, onClose, onUpdated, onCreated, isDelet
                         />
                     ) : (
                         <p className="whitespace-pre-wrap leading-7 text-gray-700 dark:text-gray-300">
-                            {formData.content || "No content"}
+                            {isSummarizing ? "Summarizing your note..." : summary ? summary : formData.content || "No content"}
                         </p>
                     )}
                 </div>
@@ -166,39 +195,58 @@ export default function NoteModal({ note, onClose, onUpdated, onCreated, isDelet
                         <span />
                     )}
 
-                    {!isDeleted && (
-                        <div className="flex gap-2">
-                            {isEditing ? (
-                                <>
-                                    {!isCreateMode && (
-                                        <button
-                                            onClick={handleCancel}
-                                            disabled={isSaving}
-                                            className="rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-700 transition hover:bg-gray-100 disabled:opacity-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-800"
-                                        >
-                                            Cancel
-                                        </button>
-                                    )}
+                    <div className="flex items-center gap-3">
+                        {!isCreateMode && !isEditing && !isDeleted && (
+                        <button
+                            type="button"
+                            onClick={handleSummarize}
+                            className="group relative inline-flex items-center gap-2 overflow-hidden rounded-lg px-4 py-2 text-sm font-medium text-white shadow-md transition hover:scale-[1.02] cursor-pointer"
+                            disabled={isSummarizing || !note?.content?.trim()}
+                        >
+                            <span className="absolute inset-0 bg-gradient-to-r from-purple-500 via-pink-500 to-blue-500" />
+                            <span className="absolute inset-0 bg-[linear-gradient(110deg,transparent_20%,rgba(255,255,255,0.35)_40%,transparent_60%)] bg-[length:200%_100%] transition-all duration-700 group-hover:bg-[position:100%_0]" />
 
+                            <Sparkles size={16} className="relative" />
+                            <span className="relative"> {isSummarizing ? "Summarizing..." : "Summarize with AI"} </span>
+                        </button>
+                        )}
+                        
+                        {!isDeleted && (
+                            <div className="flex gap-2">
+                                {isEditing ? (
+                                    <>
+                                        {!isCreateMode && (
+                                            <button
+                                                onClick={handleCancel}
+                                                disabled={isSaving}
+                                                className="rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-700 transition hover:bg-gray-100 disabled:opacity-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-800 cursor-pointer"
+                                            >
+                                                Cancel
+                                            </button>
+                                        )}
+
+                                        <button
+                                            onClick={handleSave}
+                                            disabled={isSaving || !formData.title.trim()}
+                                            className="rounded-lg bg-black px-4 py-2 text-sm text-white transition hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-white dark:text-black dark:hover:bg-gray-200 cursor-pointer"
+                                        >
+                                            {isSaving ? "Saving..." : isCreateMode ? "Create note" : "Save"}
+                                        </button>
+                                    </>
+                                ) : (
                                     <button
-                                        onClick={handleSave}
-                                        disabled={isSaving || !formData.title.trim()}
-                                        className="rounded-lg bg-black px-4 py-2 text-sm text-white transition hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-white dark:text-black dark:hover:bg-gray-200"
+                                        type="button"
+                                        onClick={() => setIsEditing(true)}
+                                        className="rounded-lg bg-black px-4 py-2 text-sm text-white transition hover:bg-gray-800 dark:bg-white dark:text-black dark:hover:bg-gray-200 cursor-pointer"
                                     >
-                                        {isSaving ? "Saving..." : isCreateMode ? "Create note" : "Save"}
+                                        Edit
                                     </button>
-                                </>
-                            ) : (
-                                <button
-                                    type="button"
-                                    onClick={() => setIsEditing(true)}
-                                    className="rounded-lg bg-black px-4 py-2 text-sm text-white transition hover:bg-gray-800 dark:bg-white dark:text-black dark:hover:bg-gray-200"
-                                >
-                                    Edit
-                                </button>
-                            )}
-                        </div>
-                    )}
+                                )}
+                            </div>
+                        )}
+
+                    </div>
+
                 </div>
             </div>
         </div>
