@@ -41,7 +41,7 @@ export default function Logout({ collapsed }) {
             title={collapsed ? "Logout" : undefined}
             aria-label="Logout"
             className={`
-                group flex h-11 w-full
+                group flex h-8 w-full
                 items-center rounded-xl
                 text-[var(--muted-foreground)]
                 transition-all duration-200

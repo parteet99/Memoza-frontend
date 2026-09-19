@@ -18,7 +18,7 @@ export default function ThemeToggle({ collapsed }) {
             <button
                 type="button"
                 className={`
-                    flex h-11 items-center rounded-xl
+                    flex h-8 items-center rounded-xl
                     text-[var(--muted-foreground)]
                     transition-all duration-200
                     hover:bg-[var(--muted)]
@@ -58,8 +58,8 @@ export default function ThemeToggle({ collapsed }) {
                     : "Switch to dark mode"
             }
             className={`
-                group flex h-11 w-full
-                items-center rounded-xl
+                group flex h-8 w-full
+                items-center rounded-xl cursor-pointer
                 text-[var(--muted-foreground)]
                 transition-all duration-200
                 hover:bg-[var(--muted)]
