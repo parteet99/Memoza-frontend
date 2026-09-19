@@ -65,7 +65,7 @@ export default function UpdateProfile({ user, onClose, onSave }) {
                     value={formData.name}
                     onChange={handleChange}
                     placeholder="Enter your name"
-                    className="w-full rounded-lg border bg-background px-3 py-2.5 text-sm outline-none transition focus:ring-2 focus:ring-primary"
+                    className="w-full rounded-lg border dark:border-gray-800 bg-background px-3 py-2.5 text-sm outline-none transition focus:ring-2 focus:ring-primary"
                 />
             </div>
 
@@ -85,23 +85,23 @@ export default function UpdateProfile({ user, onClose, onSave }) {
                     value={formData.email}
                     onChange={handleChange}
                     placeholder="Enter your email"
-                    className="w-full rounded-lg border bg-background px-3 py-2.5 text-sm outline-none transition focus:ring-2 focus:ring-primary"
+                    className="w-full rounded-lg border dark:border-gray-800 bg-background px-3 py-2.5 text-sm outline-none transition focus:ring-2 focus:ring-primary"
                 />
             </div>
 
 
-            <div className="flex justify-end gap-3 border-t pt-5">
+            <div className="flex justify-end gap-3 pt-5">
                 <button
                     type="button"
                     onClick={onClose}
-                    className="rounded-lg border px-4 py-2 text-sm font-medium transition hover:bg-muted"
+                    className="rounded-lg cursor-pointer px-4 py-2 text-sm font-medium transition hover:bg-muted hover:opacity-80"
                 >
                     Cancel
                 </button>
 
                 <button
                     type="submit"
-                    className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition hover:opacity-80"
+                    className="rounded-lg bg-gray-950 dark:bg-white dark:text-black text-white px-4 py-2 text-sm font-medium transition hover:opacity-80 cursor-pointer"
                 >
                     Save Changes
                 </button>

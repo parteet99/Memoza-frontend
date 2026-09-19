@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import { CalendarDays, Mail, User, Hash, Camera } from "lucide-react";
 import { getImageUrl } from "@/lib/imageUrl";
@@ -18,8 +18,7 @@ export default function UserProfile({ user }) {
 
     const handleImageClick = () => {
         fileInputRef.current?.click();
-    }
-
+    };
 
     const handleImageChange = async (e) => {
         const file = e.target.files?.[0];
@@ -47,137 +46,178 @@ export default function UserProfile({ user }) {
                 notify.success(res?.data?.message || "Profile image updated.");
                 setProfileImage(res?.data?.user?.profile_image);
             }
-            
         } catch (err) {
-            console.error("Profile image upload error", err.response?.data || err);
-            notify.error(err?.response?.data?.message || "Failed to upload profile image.");
+            console.error(
+                "Profile image upload error",
+                err.response?.data || err,
+            );
+            notify.error(
+                err?.response?.data?.message ||
+                    "Failed to upload profile image.",
+            );
         } finally {
             setUploadingImage(false);
             e.target.value = ""; //allow selecting same image again
         }
-
-    }
+    };
 
     return (
-        <div className="min-h-screen p-6">
-            <div className="mx-auto max-w-6xl">
-                {/* header */}
+        <div className="min-h-full p-6">
+            <div className="max-w-full">
+                {/* Header */}
                 <div className="mb-6">
-                    <h1 className="text-2xl font-semibold">My Profile</h1>
-                    <p className="mt-1 text-sm text-muted-foreground">
-                        View and manage your account information
+                    <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+                        My Profile
+                    </h1>
+                    <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                        View and manage your account information.
                     </p>
                 </div>
-
-                <div className="rounded-2xl border bg-card p-6 shadow-sm">
-                    <div className="flex flex-col items-center border-b pb-6">
+                {/* Profile Card */}
+                <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-gray-950">
+                    {/* Profile Header */}
+                    <div className="mb-6 flex flex-col items-center border-b border-gray-200 pb-6 dark:border-gray-800">
                         <div className="relative">
                             <Avatar
                                 src={getImageUrl(profileImage)}
-                                name={user.user?.name}
+                                name={user?.user?.name}
                                 size={112}
                             />
-
                             <button
                                 type="button"
-                                className="absolute bottom-0 right-0 flex h-9 w-9 cursor-pointer items-center bg-white text-black border border-gray-300 justify-center rounded-full"
+                                onClick={handleImageClick}
                                 disabled={uploadingImage}
                                 title="Change profile image"
-                                onClick={handleImageClick}
+                                className="absolute bottom-0 right-0 flex h-9 w-9 items-center justify-center rounded-full border border-gray-300 bg-white text-gray-700 shadow-sm transition hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700"
                             >
                                 <Camera size={17} />
                             </button>
-
-                            <input type="file" className="hidden" ref={fileInputRef} accept="image/*" onChange={handleImageChange} />
+                            <input
+                                type="file"
+                                className="hidden"
+                                ref={fileInputRef}
+                                accept="image/*"
+                                onChange={handleImageChange}
+                            />
                         </div>
                         {uploadingImage && (
-                            <p className="mt-2 text-xs text-muted-foreground">
+                            <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
                                 Uploading image...
                             </p>
                         )}
-
-                        <h2 className="mt-4 text-xl font-semibold">{user.user?.name}</h2>
-                        <h2 className="mt-1 text-sm text-muted-foreground">{user.user?.email}</h2>
+                        <h2 className="mt-4 text-xl font-semibold text-gray-900 dark:text-white">
+                            {user?.user?.name}
+                        </h2>
+                        <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                            {user?.user?.email}
+                        </p>
                     </div>
 
-                    <div className="mt-6 space-y-4">
-                        <div className="flex items-center gap-4 rounded-xl border p-4">
-                            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-muted">
-                                <Hash size={20} />
+                    {/* Account Information */}
+                    <div className="mb-6 flex items-center gap-3">    
+                        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gray-100 dark:bg-gray-800">
+                            <User
+                                size={20}
+                                className="text-gray-700 dark:text-gray-300"
+                            />
+                        </div>
+                        <div>
+                            <h2 className="font-semibold text-gray-900 dark:text-white">   
+                                Account information
+                            </h2>
+                            <p className="text-sm text-gray-500 dark:text-gray-400">
+                                Your basic account details.
+                            </p>
+                        </div>
+                    </div>
+                    {/* Information */}
+                    <div className="space-y-4">
+                        {/* User ID */}
+                        <div className="flex items-center gap-4 rounded-lg border border-gray-200 p-4 dark:border-gray-800">
+                            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-gray-100 dark:bg-gray-800">
+                                <Hash
+                                    size={20}
+                                    className="text-gray-700 dark:text-gray-300"
+                                />
                             </div>
                             <div>
-                                <p className="text-xs text-muted-foreground">
+                                <p className="text-xs text-gray-500 dark:text-gray-400">   
                                     User ID
                                 </p>
-                                <p className="text-sm font-medium">
-                                    {user.user?.id || "-"}
+                                <p className="mt-1 text-sm font-medium text-gray-900 dark:text-white">
+                                    {user?.user?.id || "-"}
                                 </p>
                             </div>
                         </div>
-
-                        <div className="flex items-center gap-4 rounded-xl border p-4">
-                            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-muted">
-                                <User size={20} />
+                        {/* Full Name */}
+                        <div className="flex items-center gap-4 rounded-lg border border-gray-200 p-4 dark:border-gray-800">
+                            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-gray-100 dark:bg-gray-800">
+                                <User
+                                    size={20}
+                                    className="text-gray-700 dark:text-gray-300"
+                                />
                             </div>
-
                             <div>
-                                <p className="text-xs text-muted-foreground">
+                                <p className="text-xs text-gray-500 dark:text-gray-400">   
                                     Full Name
                                 </p>
-
-                                <p className="text-sm font-medium">
-                                    {user.user?.name || "-"}
+                                <p className="mt-1 text-sm font-medium text-gray-900 dark:text-white">
+                                    {user?.user?.name || "-"}
                                 </p>
                             </div>
                         </div>
-
-                        <div className="flex items-center gap-4 rounded-xl border p-4">
-                            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-muted">
-                                <Mail className="h-5 w-5" />
+                        {/* Email */}
+                        <div className="flex items-center gap-4 rounded-lg border border-gray-200 p-4 dark:border-gray-800">
+                            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-gray-100 dark:bg-gray-800">
+                                <Mail
+                                    size={20}
+                                    className="text-gray-700 dark:text-gray-300"
+                                />
                             </div>
-
                             <div>
-                                <p className="text-xs text-muted-foreground">
+                                <p className="text-xs text-gray-500 dark:text-gray-400">   
                                     Email Address
                                 </p>
-
-                                <p className="text-sm font-medium">
-                                    {user.user?.email || "-"}
+                                <p className="mt-1 text-sm font-medium text-gray-900 dark:text-white">
+                                    {user?.user?.email || "-"}
                                 </p>
                             </div>
                         </div>
-
-                        <div className="flex items-center gap-4 rounded-xl border p-4">
-                            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-muted">
-                                <CalendarDays className="h-5 w-5" />
+                        {/* Created At */}
+                        <div className="flex items-center gap-4 rounded-lg border border-gray-200 p-4 dark:border-gray-800">
+                            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-gray-100 dark:bg-gray-800">
+                                <CalendarDays
+                                    size={20}
+                                    className="text-gray-700 dark:text-gray-300"
+                                />
                             </div>
-
                             <div>
-                                <p className="text-xs text-muted-foreground">
+                                <p className="text-xs text-gray-500 dark:text-gray-400">   
                                     Account Created
                                 </p>
-
-                                <p className="text-sm font-medium">
-                                    {user.user?.created_at && new Date(user.user.created_at).toLocaleString()}
+                                <p className="mt-1 text-sm font-medium text-gray-900 dark:text-white">
+                                    {user?.user?.created_at
+                                        ? new Date(
+                                              user.user.created_at,
+                                          ).toLocaleString()
+                                        : "-"}
                                 </p>
                             </div>
                         </div>
-
                     </div>
-
-                    <div className="mt-6 flex justify-end">
+                    {/* Edit Button */}
+                    <div className="mt-6 flex items-center justify-end">
                         <button
                             type="button"
-                            className="rounded-lg px-5 py-2.5 text-sm font-medium text-primary-foreground border cursor-pointer transition hover:opacity-50"
                             onClick={() => setEditProfile(true)}
+                            className="rounded-lg bg-gray-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-gray-800 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-200 cursor-pointer"
                         >
                             Edit profile
                         </button>
                     </div>
-
                 </div>
             </div>
-
+            {/* Edit Profile Modal */}
             <Modal
                 open={editProfile}
                 onClose={() => setEditProfile(false)}
@@ -188,11 +228,9 @@ export default function UserProfile({ user }) {
                     onClose={() => setEditProfile(false)}
                     onSave={(data) => {
                         console.log("Profile data:", data);
-                        // Later:
-                        // await api.put(`/users/${user.user.id}`, data);
                     }}
                 />
             </Modal>
         </div>
-    )
+    );
 }
