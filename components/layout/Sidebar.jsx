@@ -12,6 +12,7 @@ import {
     User,
     PanelLeftClose,
     PanelLeftOpen,
+    LockKeyhole
 } from "lucide-react";
 import ThemeToggle from "../theme/ThemeToggle";
 import Logout from "../auth/Logout";
@@ -53,6 +54,11 @@ const bottomNavigation = [
         title: "Profile",
         href: "/profile",
         icon: User,
+    },
+    {
+        title: "Change password",
+        href: "/change-password",
+        icon: LockKeyhole,
     },
     {
         title: "Theme",
@@ -314,7 +320,7 @@ export default function Sidebar() {
                                         : undefined
                                 }
                                 className={`
-                                    group flex h-11
+                                    group flex h-8
                                     items-center rounded-xl
                                     transition-all duration-200
                                     ${
