@@ -17,6 +17,11 @@ export const config = {
         "/",
         "/profile",
         "/notes",
-        "/folders"
+        "/folders",
+        "/folders/:id",
+        "/trash",
+        "/change-password",
+        "/favorites",
+        "/archive"
     ]
 }
