@@ -5,7 +5,7 @@ import api from "@/lib/api";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { notify } from "@/lib/notification";
-
+import Image from "next/image";
 
 
 export default function SignupPage() {
@@ -48,17 +48,21 @@ export default function SignupPage() {
     }
 
     return (
-        <main className="flex min-h-screen items-center justify-center bg-[var(--background)] px-4 text-[var(--foreground)]">
+        <main className="flex min-h-screen items-center py-2 justify-center bg-[var(--background)] px-4 text-[var(--foreground)]">
             <div className="w-full max-w-md">
                 {/* Logo */}
-                <div className="mb-8 text-center">
+                <div className="mb-5 text-center">
                     <Link
                         href="/"
                         className="inline-flex items-center gap-3"
                     >
-                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--primary)] text-sm font-bold text-[var(--primary-foreground)]">
-                            M
-                        </div>
+                        <Image
+                            src="/icon.png"
+                            width={40}
+                            height={40}
+                            priority
+                            alt="Memoza"
+                        />
 
                         <span className="text-xl font-semibold tracking-tight">
                             Memoza
@@ -67,8 +71,8 @@ export default function SignupPage() {
                 </div>
 
                 {/* Card */}
-                <div className="rounded-2xl border border-[var(--border)] bg-[var(--card)] p-8 shadow-sm">
-                    <div className="mb-6">
+                <div className="rounded-2xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-sm">
+                    <div className="mb-5">
                         <h1 className="text-2xl font-semibold">
                             Create your account
                         </h1>
@@ -78,7 +82,7 @@ export default function SignupPage() {
                         </p>
                     </div>
 
-                    <form className="space-y-5" onSubmit={handleSubmit}>
+                    <form className="space-y-4" onSubmit={handleSubmit}>
                         {/* Name */}
                         <div>
                             <label
@@ -185,6 +189,7 @@ export default function SignupPage() {
                                 text-[var(--primary-foreground)]
                                 transition
                                 hover:opacity-90
+                                cursor-pointer
                             "
                             disabled={loading}
                         >
