@@ -5,6 +5,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import api from "@/lib/api";
 import { notify } from "@/lib/notification";
+import Image from "next/image";
 
 
 export default function LoginPage() {
@@ -61,9 +62,13 @@ export default function LoginPage() {
                         href="/"
                         className="inline-flex items-center gap-3"
                     >
-                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--primary)] text-sm font-bold text-[var(--primary-foreground)]">
-                            M
-                        </div>
+                        <Image
+                            src="/icon.png"
+                            width={40}
+                            height={40}
+                            priority
+                            alt="Memoza"
+                        />
 
                         <span className="text-xl font-semibold tracking-tight">
                             Memoza
