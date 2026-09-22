@@ -43,6 +43,7 @@ lucide-react   (icon pack)
 axios
 sonner (for notifications)
 js-cookie
+react-quill-new (text editor)
 
 
 <!-- IMPORTANT -->

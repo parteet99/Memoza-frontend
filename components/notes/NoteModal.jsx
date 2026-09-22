@@ -1,9 +1,31 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { useEffect, useState } from "react";
 import { Sparkles, X } from "lucide-react";
 import api from "@/lib/api";
 import { notify } from "@/lib/notification";
+import "react-quill-new/dist/quill.snow.css";
+
+const ReactQuill = dynamic(() => import("react-quill-new"), {
+    ssr: false,
+    loading: () => (
+        <div className="h-[300px] animate-pulse rounded-lg bg-gray-100 dark:bg-gray-800" />
+    )
+});
+
+const quillModules = {
+    toolbar: [[{ header: [1, 2, 3, false] }],
+        ["bold", "italic", "underline", "strike"],
+        [{ list: "ordered" }, { list: "bullet" }],
+        [{ indent: "-1" }, { indent: "+1" }],
+        ["blockquote", "code-block"],
+        ["link"],
+        ["clean"],
+    ],
+};
+
+const quillFormats = ["header", "bold", "italic", "underline", "strike", "list", "bullet", "indent", "blockquote", "code-block", "link",];
 
 export default function NoteModal({ note, onClose, onUpdated, onCreated, isDeleted = false }) {
     const isCreateMode = !note;
@@ -41,12 +63,17 @@ export default function NoteModal({ note, onClose, onUpdated, onCreated, isDelet
     if (!note && !isCreateMode) return null;
 
 
-    const handleChange = (e) => {
-        const { name, value } = e.target;
-
+    const handleTitleChange = (e) => {
         setFormData((prev) => ({
             ...prev,
-            [name]: value
+            title: e.target.value
+        }))
+    }
+
+    const handleContentChange = (value) => {
+        setFormData((prev) => ({
+            ...prev,
+            content: value
         }))
     }
 
@@ -137,7 +164,11 @@ export default function NoteModal({ note, onClose, onUpdated, onCreated, isDelet
                 {/* Header */}
                 <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4 dark:border-gray-700">
                     <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
-                        {isCreateMode ? "Create note" : isEditing ? "Edit note" : "Note"}
+                        {isCreateMode
+                            ? "Create note"
+                            : isEditing
+                              ? "Edit note"
+                              : "Note"}
                     </h2>
 
                     <button
@@ -156,7 +187,7 @@ export default function NoteModal({ note, onClose, onUpdated, onCreated, isDelet
                             type="text"
                             name="title"
                             value={formData.title}
-                            onChange={handleChange}
+                            onChange={handleTitleChange}
                             placeholder="Note title"
                             className="mb-4 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-xl font-semibold text-gray-900 outline-none transition placeholder:text-gray-400 focus:border-gray-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:placeholder:text-gray-500 dark:focus:border-gray-400"
                             autoFocus
@@ -169,18 +200,37 @@ export default function NoteModal({ note, onClose, onUpdated, onCreated, isDelet
 
                     {/* Content */}
                     {isEditing ? (
-                        <textarea
-                            value={formData.content}
-                            name="content"
-                            onChange={handleChange}
-                            placeholder="Write your note..."
-                            rows={12}
-                            className="w-full resize-none rounded-lg border border-gray-300 bg-white p-3 text-sm leading-6 text-gray-900 outline-none transition placeholder:text-gray-400 focus:border-gray-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 dark:placeholder:text-gray-500 dark:focus:border-gray-400"
-                        />
+                        <div className="note-editor">
+                            <ReactQuill
+                                theme="snow"
+                                value={formData.content}
+                                onChange={handleContentChange}
+                                modules={quillModules}
+                                formats={quillFormats}
+                                placeholder="Write your note..."
+                            />
+                        </div>
                     ) : (
-                        <p className="whitespace-pre-wrap leading-7 text-gray-700 dark:text-gray-300">
-                            {isSummarizing ? "Summarizing your note..." : summary ? summary : formData.content || "No content"}
-                        </p>
+                        <div className="note-content">
+                            {isSummarizing ? (
+                                <p className="leading-7 text-gray-700 dark:text-gray-300">
+                                    Summarizing your note...
+                                </p>
+                            ) : summary ? (
+                                <p className="whitespace-pre-wrap leading-7 text-gray-700 dark:text-gray-300">
+                                    {summary}
+                                </p>
+                            ) : formData.content ? (
+                                <div
+                                    className="prose max-w-none dark:prose-invert"
+                                    dangerouslySetInnerHTML={{
+                                        __html: formData.content,
+                                    }}
+                                />
+                            ) : (
+                                <p className="text-gray-500"> No content </p>
+                            )}
+                        </div>
                     )}
                 </div>
 
@@ -197,20 +247,27 @@ export default function NoteModal({ note, onClose, onUpdated, onCreated, isDelet
 
                     <div className="flex items-center gap-3">
                         {!isCreateMode && !isEditing && !isDeleted && (
-                        <button
-                            type="button"
-                            onClick={handleSummarize}
-                            className="group relative inline-flex items-center gap-2 overflow-hidden rounded-lg px-4 py-2 text-sm font-medium text-white shadow-md transition hover:scale-[1.02] cursor-pointer"
-                            disabled={isSummarizing || !note?.content?.trim()}
-                        >
-                            <span className="absolute inset-0 bg-gradient-to-r from-purple-500 via-pink-500 to-blue-500" />
-                            <span className="absolute inset-0 bg-[linear-gradient(110deg,transparent_20%,rgba(255,255,255,0.35)_40%,transparent_60%)] bg-[length:200%_100%] transition-all duration-700 group-hover:bg-[position:100%_0]" />
+                            <button
+                                type="button"
+                                onClick={handleSummarize}
+                                className="group relative inline-flex items-center gap-2 overflow-hidden rounded-lg px-4 py-2 text-sm font-medium text-white shadow-md transition hover:scale-[1.02] cursor-pointer"
+                                disabled={
+                                    isSummarizing || !note?.content?.trim()
+                                }
+                            >
+                                <span className="absolute inset-0 bg-gradient-to-r from-purple-500 via-pink-500 to-blue-500" />
+                                <span className="absolute inset-0 bg-[linear-gradient(110deg,transparent_20%,rgba(255,255,255,0.35)_40%,transparent_60%)] bg-[length:200%_100%] transition-all duration-700 group-hover:bg-[position:100%_0]" />
 
-                            <Sparkles size={16} className="relative" />
-                            <span className="relative"> {isSummarizing ? "Summarizing..." : "Summarize with AI"} </span>
-                        </button>
+                                <Sparkles size={16} className="relative" />
+                                <span className="relative">
+                                    {" "}
+                                    {isSummarizing
+                                        ? "Summarizing..."
+                                        : "Summarize with AI"}{" "}
+                                </span>
+                            </button>
                         )}
-                        
+
                         {!isDeleted && (
                             <div className="flex gap-2">
                                 {isEditing ? (
@@ -227,10 +284,17 @@ export default function NoteModal({ note, onClose, onUpdated, onCreated, isDelet
 
                                         <button
                                             onClick={handleSave}
-                                            disabled={isSaving || !formData.title.trim()}
+                                            disabled={
+                                                isSaving ||
+                                                !formData.title.trim()
+                                            }
                                             className="rounded-lg bg-black px-4 py-2 text-sm text-white transition hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-white dark:text-black dark:hover:bg-gray-200 cursor-pointer"
                                         >
-                                            {isSaving ? "Saving..." : isCreateMode ? "Create note" : "Save"}
+                                            {isSaving
+                                                ? "Saving..."
+                                                : isCreateMode
+                                                  ? "Create note"
+                                                  : "Save"}
                                         </button>
                                     </>
                                 ) : (
@@ -244,9 +308,7 @@ export default function NoteModal({ note, onClose, onUpdated, onCreated, isDelet
                                 )}
                             </div>
                         )}
-
                     </div>
-
                 </div>
             </div>
         </div>

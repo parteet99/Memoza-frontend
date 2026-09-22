@@ -204,7 +204,12 @@ export default function AllNotes({ notes }) {
                                 </h3>
 
                                 <p className="mb-4 line-clamp-3 text-sm leading-6 text-gray-600 dark:text-gray-400">
-                                    {note.content || "No content"}
+                                    <div
+                                        className="prose max-w-none dark:prose-invert"
+                                        dangerouslySetInnerHTML={{
+                                            __html: note.content,
+                                        }}
+                                    />
                                 </p>
 
                                 <div className="flex items-center justify-between text-xs text-gray-400 dark:text-gray-500">
