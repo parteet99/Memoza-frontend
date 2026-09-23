@@ -1,7 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { Sparkles, X } from "lucide-react";
 import api from "@/lib/api";
 import { notify } from "@/lib/notification";
@@ -14,18 +14,18 @@ const ReactQuill = dynamic(() => import("react-quill-new"), {
     )
 });
 
-const quillModules = {
-    toolbar: [[{ header: [1, 2, 3, false] }],
+ const quillModules = {
+        toolbar: [[{ header: [1, 2, 3, false] }],
         ["bold", "italic", "underline", "strike"],
         [{ list: "ordered" }, { list: "bullet" }],
         [{ indent: "-1" }, { indent: "+1" }],
         ["blockquote", "code-block"],
-        ["link"],
+        ["link", "image"],
         ["clean"],
-    ],
-};
+        ],
+    };
 
-const quillFormats = ["header", "bold", "italic", "underline", "strike", "list", "bullet", "indent", "blockquote", "code-block", "link",];
+const quillFormats = ["header", "bold", "italic", "underline", "strike", "list", "bullet", "indent", "blockquote", "code-block", "link", "image"];
 
 export default function NoteModal({ note, onClose, onUpdated, onCreated, isDeleted = false }) {
     const isCreateMode = !note;
@@ -39,6 +39,7 @@ export default function NoteModal({ note, onClose, onUpdated, onCreated, isDelet
 
     const [summary, setSummary] = useState("");
     const [isSummarizing, setIsSummarizing] = useState(false);
+    const quillRef = useRef(null);
 
     useEffect(() => {
         if (note) {
@@ -113,6 +114,95 @@ export default function NoteModal({ note, onClose, onUpdated, onCreated, isDelet
          }
     }
 
+    const handleImageUpload = () => {
+        const input = document.createElement("input");
+
+        input.type = "file";
+        input.accept = "image/*";
+
+        input.addEventListener("change", async (event) => {
+            const file = event.target.files?.[0];
+
+            if (!file) {
+                notify.error("No file selected");
+                return;
+            }
+
+            if (!file.type.startsWith("image/")) {
+                notify.warning("Please select an image file");
+                return;
+            }
+
+            if (file.size > 5 * 1024 * 1024) {
+                notify.warning("Image must be less than 5MB");
+                return;
+            }
+
+            try {
+                notify.info("Uploading image...")
+                
+                const uploadData = new FormData();
+                uploadData.append("image", file);
+
+                const res = await api.post(
+                    "/notes/upload-image",
+                    uploadData
+                );
+
+                if (!res.data?.success) {
+                    throw new Error(
+                        res.data?.message || "Image upload failed"
+                    );
+                }
+
+                const imageUrl = res.data.imageUrl;
+
+                const quill = quillRef.current?.getEditor();
+
+                if (!quill) {
+                    notify.warning("Quill editor not found");
+                    return;
+                }
+
+                const range = quill.getSelection(true);
+
+                quill.insertEmbed(
+                    range.index,
+                    "image",
+                    imageUrl
+                );
+
+                quill.setSelection(range.index + 1);
+
+                notify.success("Image uploaded successfully");
+            } catch (error) {
+                console.error("Image upload error:", error);
+
+                notify.error(
+                    error?.response?.data?.message ||
+                    "Failed to upload image"
+                );
+            }
+        });
+
+        input.click();
+    };
+
+    const setQuillRef = (instance) => {
+        if (!instance) {
+            quillRef.current = null;
+            return;
+        }
+
+        quillRef.current = instance;
+        const quill = instance.getEditor();
+        const toolbar = quill.getModule("toolbar");
+
+        if (toolbar) {
+            toolbar.addHandler("image", handleImageUpload);
+        }
+    };
+
     const handleSave = async (e) => {
         e.preventDefault();
         try {
@@ -144,7 +234,7 @@ export default function NoteModal({ note, onClose, onUpdated, onCreated, isDelet
                 }
             }
         } catch (error) {
-            console.error(isCreateMode ? "Create note error" : "Update note error", err);
+            console.error(isCreateMode ? "Create note error" : "Update note error", error);
 
             notify.error(error?.response?.data?.message || "Something went wrong");
         } finally {
@@ -202,6 +292,7 @@ export default function NoteModal({ note, onClose, onUpdated, onCreated, isDelet
                     {isEditing ? (
                         <div className="note-editor">
                             <ReactQuill
+                                ref={setQuillRef}
                                 theme="snow"
                                 value={formData.content}
                                 onChange={handleContentChange}
