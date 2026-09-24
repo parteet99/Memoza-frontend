@@ -2,9 +2,13 @@ import AllNotes from "@/components/notes/AllNotes"
 import api from "@/lib/api"
 import { cookies } from "next/headers";
 
-async function getNotes(token) {
+async function getNotes(token, page = 1) {
     try {
         const response = await api.get(`/notes/get-notes`, {
+            params: {
+                page,
+                limit: 10
+            },
             headers: {
                 Cookie: `token=${token}`
             }
@@ -18,10 +22,13 @@ async function getNotes(token) {
     }
 }
 
-export default async function Notes() {
+export default async function Notes({searchParams}) {
     const cookieStore = await cookies();
     const token = cookieStore.get("token")?.value
-    const notes = await getNotes(token);
+
+    const params = await searchParams;
+    const page = Number(params?.page) || 1;
+    const notes = await getNotes(token, page);
     return (
         <AllNotes notes={notes} />
     )
