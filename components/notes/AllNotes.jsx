@@ -8,6 +8,7 @@ import api from "@/lib/api";
 import { notify } from "@/lib/notification";
 import { useRouter } from "next/navigation";
 import FolderSelector from "../folders/FolderSelector";
+import Pagination from "../ui/Pagination";
 
 export default function AllNotes({ notes }) {
     const [noteList, setNoteList] = useState(
@@ -85,12 +86,13 @@ export default function AllNotes({ notes }) {
 
     //add new created note to grid
     const handleNoteCreated = (newNote) => {
-        setNoteList((prevNotes) => [
-            newNote,
-            ...prevNotes,
-        ]);
+        // setNoteList((prevNotes) => [
+        //     newNote,
+        //     ...prevNotes,
+        // ]);
 
         setShowCreateModal(false);
+        router.push("/notes?page=1")
     };
 
     const handleMoveToTrash = async () => {
@@ -192,6 +194,7 @@ export default function AllNotes({ notes }) {
                 </div>
 
                 {noteList.length > 0 ? (
+                    <>
                     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                         {noteList.map((note) => (
                             <div
@@ -324,6 +327,13 @@ export default function AllNotes({ notes }) {
                             </div>
                         ))}
                     </div>
+                    {!search.trim() && (
+                        <Pagination
+                            currentPage={notes?.pagination?.page || 1}
+                            totalPages={notes?.pagination?.totalPages || 1}
+                        />
+                    )}
+                </>
                 ) : (
                     <div className="flex min-h-[300px] flex-col items-center justify-center">
                         <p className="mb-4 text-gray-500 dark:text-gray-400">
