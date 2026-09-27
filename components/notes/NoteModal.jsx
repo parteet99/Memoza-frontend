@@ -6,6 +6,7 @@ import { Sparkles, X } from "lucide-react";
 import api from "@/lib/api";
 import { notify } from "@/lib/notification";
 import "react-quill-new/dist/quill.snow.css";
+import { exportNoteAsJson, exportNoteAsText } from "@/lib/exportNote";
 
 const ReactQuill = dynamic(() => import("react-quill-new"), {
     ssr: false,
@@ -36,6 +37,7 @@ export default function NoteModal({ note, onClose, onUpdated, onCreated, isDelet
 
     const [isEditing, setIsEditing] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
+    const [showExportMenu, setShowExportMenu] = useState(false)
 
     const [summary, setSummary] = useState("");
     const [isSummarizing, setIsSummarizing] = useState(false);
@@ -338,6 +340,38 @@ export default function NoteModal({ note, onClose, onUpdated, onCreated, isDelet
 
                     <div className="flex items-center gap-3">
                         {!isCreateMode && !isEditing && !isDeleted && (
+                            <>
+                                <div className="relative">
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowExportMenu((prev) => !prev)}
+                                        className="rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-700 transition hover:bg-gray-100 disabled:opacity-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-800 cursor-pointer"
+                                    >
+                                        Export as
+                                    </button>
+                                    {showExportMenu && (
+                                        <div className="absolute bottom-full right-0 z-50 mb-2 w-44 overflow-hidden rounded-lg border border-gray-200 bg-white shadow-lg dark:border-gray-700 dark:bg-gray-800">
+                                            <button
+                                                onClick={() => {
+                                                    exportNoteAsJson(note);
+                                                    setShowExportMenu(false);
+                                                }}
+                                                className="block w-full px-4 py-2.5 text-left text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700 cursor-pointer"
+                                            >
+                                                Export as JSON
+                                            </button>
+                                            <button
+                                                onClick={() => {
+                                                    exportNoteAsText(note);
+                                                    setShowExportMenu(false);
+                                                }}
+                                                className="block w-full px-4 py-2.5 text-left text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700 cursor-pointer"
+                                            >
+                                                Export as TEXT
+                                            </button>
+                                        </div>
+                                    )}
+                                </div>
                             <button
                                 type="button"
                                 onClick={handleSummarize}
@@ -357,6 +391,7 @@ export default function NoteModal({ note, onClose, onUpdated, onCreated, isDelet
                                         : "Summarize with AI"}{" "}
                                 </span>
                             </button>
+                            </>
                         )}
 
                         {!isDeleted && (

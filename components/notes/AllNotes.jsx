@@ -1,14 +1,16 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import NoteModal from "./NoteModal";
-import { Eye, Trash2, FolderUp, Pin, Star, PinOff, StarOff, Archive, Search, Plus } from "lucide-react";
+import { Eye, Trash2, FolderUp, Pin, Star, PinOff, StarOff, Archive, Search, Plus, Upload } from "lucide-react";
 import ConfirmationModal from "../ui/ConfirmationModal";
 import api from "@/lib/api";
 import { notify } from "@/lib/notification";
 import { useRouter } from "next/navigation";
 import FolderSelector from "../folders/FolderSelector";
 import Pagination from "../ui/Pagination";
+import importNoteFromJson from "@/lib/importNote";
+import importNoteFromText from "@/lib/importTextNote";
 
 export default function AllNotes({ notes }) {
     const [noteList, setNoteList] = useState(
@@ -25,6 +27,10 @@ export default function AllNotes({ notes }) {
     const [noteId, setNoteId] = useState(null);
     const [search, setSearch] = useState("");
     const [searching, setSearching] = useState(false);
+
+    const [showImportMenu, setShowImportMenu] = useState(false);
+    const [importType, setImportType] = useState(null);
+    const fileInputRef = useRef(null);
 
     useEffect(() => {
         setNoteList(notes?.notes || []);
@@ -57,7 +63,54 @@ export default function AllNotes({ notes }) {
         }, 500)
 
         return () => clearTimeout(timer);
-    },[search, notes])
+    }, [search, notes])
+    
+    const handleImportClick = (type) => {
+        setImportType(type);
+        setShowImportMenu(false);
+
+        setTimeout(() => {
+            fileInputRef.current?.click();
+        }, 0);
+    }
+
+    const handleFileChange = async (event) => {
+        const file = event.target.files?.[0];
+
+        if (!file) return;
+
+        try {
+            let note;
+
+            if (importType === "json") {
+                note = await importNoteFromJson(file);
+            } else if (importType === "text") {
+                note = await importNoteFromText(file);
+            }
+
+            if (!note) {
+                throw new Error("Could not read the imported file")
+            }
+
+            const res = await api.post("/notes/import-note", {
+                title: note.title,
+                content: note.content,
+                is_pinned: note.is_pinned ?? false,
+                is_favorite: note.is_favorite ?? false,
+                is_archived: note.is_archived ?? false
+            })
+            if (res?.data?.success) {
+                notify.success(res?.data?.message || "Note imported successfully")
+                router.refresh();
+            }
+        } catch (error) {
+            console.error("Import error", error);
+            notify.error(error?.response?.data?.message || error?.message || "Failed to import note");
+        } finally {
+            event.target.value = "";
+            setImportType(null);
+        }
+    }
 
     const handleNoteClick = (note) => {
         setSelectedNote(note);
@@ -183,13 +236,44 @@ export default function AllNotes({ notes }) {
                                 className="h-10 w-full rounded-lg border border-gray-300 bg-white pl-10 pr-3 text-sm text-gray-900 outline-none transition placeholder:text-gray-400 focus:border-gray-500 focus:ring-2 focus:ring-gray-200 dark:border-gray-700 dark:bg-gray-900 dark:text-white dark:focus:border-gray-500 dark:focus:ring-gray-800"
                             />
                         </div>
-                        <button
-                            onClick={() => setShowCreateModal(true)}
-                            className="flex h-10 items-center justify-center gap-2 rounded-lg bg-black px-4 text-sm font-medium text-white transition hover:bg-gray-800 dark:bg-white dark:text-black dark:hover:bg-gray-200"
-                        >
-                            <Plus size={16} />
-                            New Note
-                        </button>
+
+                        <div className="flex items-center gap-3">
+                            <div className="relative">
+                                <button
+                                    type="button"
+                                    onClick={() => setShowImportMenu((prev) => !prev)}
+                                    className="flex h-10 items-center justify-center gap-2 rounded-lg border border-gray-300 bg-white px-4 text-sm font-medium text-gray-900 transition hover:bg-gray-100 dark:bg-gray-900 dark:border-gray-700 dark:text-white dark:hover:bg-gray-800 cursor-pointer"
+                                >
+                                    <Upload size={16} />
+                                    Import
+                                </button>
+                                {showImportMenu && (
+                                    <div className="absolute right-0 z-50 mt-2 w-40 overflow-hidden rounded-lg border border-gray-200 bg-white shadow-md dark:border-gray-700 dark:bg-gray-900">
+                                        <button
+                                            type="button"
+                                            onClick={() => handleImportClick("json")}
+                                            className="flex w-full items-center px-4 py-2.5 text-left text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-800 cursor-pointer"
+                                        >
+                                            Import JSON
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={() => handleImportClick("text")}
+                                            className="flex w-full items-center px-4 py-2.5 text-left text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-800 cursor-pointer"
+                                        >
+                                            Import text
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
+                            <button
+                                onClick={() => setShowCreateModal(true)}
+                                className="flex h-10 items-center justify-center gap-2 rounded-lg bg-black px-4 text-sm font-medium text-white transition hover:bg-gray-800 dark:bg-white dark:text-black dark:hover:bg-gray-200"
+                            >
+                                <Plus size={16} />
+                                New Note
+                            </button>
+                        </div>
                     </div>
                 </div>
 
@@ -383,6 +467,18 @@ export default function AllNotes({ notes }) {
             />
 
             <FolderSelector isOpen={openFolderSelector} onClose={closeFolderSelector} noteId={noteId} />
+
+            <input
+                ref={fileInputRef}
+                type="file"
+                className="hidden"
+                accept={
+                    importType === "json"
+                        ? ".json,application/json"
+                        : ".txt,text/plain"
+                }
+                onChange={handleFileChange}
+            />
         </>
     );
 }
