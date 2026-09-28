@@ -44,7 +44,7 @@ export default function LoginPage() {
                 if (userId) {
                     document.cookie = `userId=${userId}; path=/; max-age=${60*60*24*7};` //7 days
                 }
-                router.push("/notes");
+                router.push("/");
             }
         } catch (err) {
             console.error("Login error", err);
