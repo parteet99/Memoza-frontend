@@ -1,3 +1,5 @@
+"use client"
+
 import { getGreeting } from "@/lib/getGreeting"
 
 export default function DashboardWish() {
