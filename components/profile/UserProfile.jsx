@@ -12,6 +12,7 @@ import { notify } from "@/lib/notification";
 export default function UserProfile({ user }) {
     const [editProfile, setEditProfile] = useState(false);
     const [profileImage, setProfileImage] = useState(user?.user?.profile_image);
+    console.log({profileImage})
     const [uploadingImage, setUploadingImage] = useState(false);
 
     const fileInputRef = useRef(null);
@@ -44,7 +45,7 @@ export default function UserProfile({ user }) {
             const res = await api.post("/users/profile-image", formData);
             if (res?.data?.success) {
                 notify.success(res?.data?.message || "Profile image updated.");
-                setProfileImage(res?.data?.user?.profile_image);
+                setProfileImage(res?.data?.image);
             }
         } catch (err) {
             console.error(
@@ -79,7 +80,7 @@ export default function UserProfile({ user }) {
                     <div className="mb-6 flex flex-col items-center border-b border-gray-200 pb-6 dark:border-gray-800">
                         <div className="relative">
                             <Avatar
-                                src={getImageUrl(profileImage)}
+                                src={profileImage}
                                 name={user?.user?.name}
                                 size={112}
                             />
