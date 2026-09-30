@@ -106,7 +106,7 @@ export default function Sidebar() {
             >
                 {/* Logo */}
                 <Link
-                    href="/notes"
+                    href="/"
                     className="flex min-w-0 items-center gap-3"
                 >
                     <div
