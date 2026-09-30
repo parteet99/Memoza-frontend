@@ -1,8 +1,18 @@
 "use client"
 
 import { getGreeting } from "@/lib/getGreeting"
+import { useState, useEffect } from "react";
+import Cookies from "js-cookie";
 
 export default function DashboardWish() {
+    const [userName, setUserName] = useState("user");
+
+    useEffect(() => {
+        const name = Cookies.get("userName");
+        if (name) {
+            setUserName(name);
+        }
+    }, [])
     return (
         <div
             className="
@@ -23,7 +33,7 @@ export default function DashboardWish() {
             }}
         >
             <h1 className="text-2xl font-semibold">
-                {getGreeting()}, Parteet
+                {getGreeting()}, {userName}
             </h1>
 
             <p className="text-muted-foreground">

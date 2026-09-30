@@ -13,10 +13,10 @@ export default function DashboardCount() {
         const fetchCount = async () => {
             try {
                 const [note, trash, folder, archive] = await Promise.all([
-                    api.get("/count/note-count"),
-                    api.get("/count/trash-count"),
-                    api.get("/count/folder-count"),
-                    api.get("/count/archive-count"),
+                    api.get("/dashboard/note-count"),
+                    api.get("/dashboard/trash-count"),
+                    api.get("/dashboard/folder-count"),
+                    api.get("/dashboard/archive-count"),
                 ])
 
                 setNoteCount(note.data.note);

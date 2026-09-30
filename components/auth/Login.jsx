@@ -39,10 +39,10 @@ export default function LoginPage() {
             )
             if (res?.data?.success) {
                 notify.success(res?.data?.message || "Login successful");
-                console.log({res})
-                const userId = res?.data?.user?.id;
-                if (userId) {
-                    document.cookie = `userId=${userId}; path=/; max-age=${60*60*24*7};` //7 days
+                const user = res?.data?.user;
+                if (user) {
+                    document.cookie = `userId=${user.id}; path=/; max-age=${60 * 60 * 24 * 7};` //7 days
+                    document.cookie = `userName=${encodeURIComponent(user.name)}; path=/; max-age=${60 * 60 * 24 * 7}`
                 }
                 router.push("/");
             }
