@@ -23,10 +23,27 @@ export default function CreateFolderModal({ onClose, isEdit = false, folderId, f
             ...prev,
             [name]: value
         }))
+
+        setError((prev) => ({
+            ...prev,
+            name: ""
+        }))
     };
 
-    const handleSubmit = async () => {
+    const validate = () => {
+        const errors = {};
 
+        if (!formData.name.trim()) {
+            errors.name = "Folder name is required"
+        }
+
+        setError(errors);
+
+        return Object.keys(errors).length === 0;
+    }
+
+    const handleSubmit = async () => {
+        if (!validate()) return;
         try {
             setLoading(true);
             let res
@@ -93,8 +110,13 @@ export default function CreateFolderModal({ onClose, isEdit = false, folderId, f
                         onChange={handleChange}
                         value={formData.name}
                         placeholder={isEdit ? "Enter new folder name" : "Enter folder name"}
-                        className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-gray-900 outline-none transition focus:border-gray-400 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
+                        className={`w-full rounded-xl border bg-white px-4 py-3 text-sm text-gray-900 outline-none transition focus:border-gray-400 dark:border-gray-700 dark:bg-gray-800 dark:text-white ${error.name ? "border-red-500 dark:border-red-500" : "border-gray-200 dark:border-gray-700"}`}
                     />
+                    {error.name && (
+                        <p className="mt-1 text-xs text-red-500">
+                            {error.name}
+                        </p>
+                    )}
                 </div>
 
                 <div className="mt-6 flex justify-end gap-3">

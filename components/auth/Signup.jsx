@@ -15,7 +15,7 @@ export default function SignupPage() {
         password: ""
     })
     const [loading, setLoading] = useState(false);
-    const [error, setError] = useState("");
+    const [error, setError] = useState({});
     const router = useRouter();
 
     const handleChange = async (e) => {
@@ -25,16 +25,41 @@ export default function SignupPage() {
             ...prev,
             [name]: value
         }))
+
+        setError((prev) => ({
+            ...prev,
+            [name]: ""
+        }))
     }
+
+    const validateForm = () => {
+        const errors = {};
+
+        if (!formData.name.trim()) {
+            errors.name = "Name is required"
+        }
+
+        if (!formData.email.trim()) {
+            errors.email = "Email is required";
+        } else if (!/^[^\s@]+@[^\s@]+\.[A-Za-z]{2,}$/.test(formData.email)) {
+            errors.email = "Please enter a valid email address";
+        }
+
+        if (!formData.password) {
+            errors.password = "Password is required";
+        }
+
+        setError(errors);
+
+        return Object.keys(errors).length === 0;
+    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-
-        setError("");
+        if (!validateForm()) return;
         setLoading(true);
         try {
             const res = await api.post("/users/register", formData);
-            console.log({res})
             if (res?.data?.success) {
                 notify.success(res?.data?.message || "Signup successfull");
                 router.push("/login");
@@ -82,7 +107,7 @@ export default function SignupPage() {
                         </p>
                     </div>
 
-                    <form className="space-y-4" onSubmit={handleSubmit}>
+                    <form className="space-y-3" noValidate onSubmit={handleSubmit}>
                         {/* Name */}
                         <div>
                             <label
@@ -99,10 +124,9 @@ export default function SignupPage() {
                                 value={formData.value}
                                 onChange={handleChange}
                                 placeholder="Your name"
-                                required
-                                className="
+                                className={`
                                     h-11 w-full rounded-lg
-                                    border border-[var(--border)]
+                                    border
                                     bg-[var(--background)]
                                     px-3
                                     text-sm
@@ -111,9 +135,16 @@ export default function SignupPage() {
                                     transition
                                     placeholder:text-[var(--muted-foreground)]
                                     focus:border-[var(--foreground)]
-                                "
+                                    ${error.name ? "border-red-500 focus:border-red-500" : "border-[var(--border)]"}
+                                    `}
+                                
                             />
                         </div>
+                        {error.name && (
+                            <p className="text-xs text-red-500">
+                                {error.name}
+                            </p>
+                        )}
 
                         {/* Email */}
                         <div>
@@ -131,10 +162,9 @@ export default function SignupPage() {
                                 placeholder="you@example.com"
                                 value={formData.email}
                                 onChange={handleChange}
-                                required
-                                className="
+                                className={`
                                     h-11 w-full rounded-lg
-                                    border border-[var(--border)]
+                                    border
                                     bg-[var(--background)]
                                     px-3
                                     text-sm
@@ -143,9 +173,15 @@ export default function SignupPage() {
                                     transition
                                     placeholder:text-[var(--muted-foreground)]
                                     focus:border-[var(--foreground)]
-                                "
+                                    ${error.email ? "border-red-500 focus:border-red-500" : "border-[var(--border)]"}
+                                `}
                             />
                         </div>
+                        {error.email && (
+                            <p className="text-xs text-red-500">
+                                {error.email}
+                            </p>
+                        )}
 
                         {/* Password */}
                         <div>
@@ -163,10 +199,9 @@ export default function SignupPage() {
                                 placeholder="Create a password"
                                 value={formData.password}
                                 onChange={handleChange}
-                                required
-                                className="
+                                className={`
                                     h-11 w-full rounded-lg
-                                    border border-[var(--border)]
+                                    border
                                     bg-[var(--background)]
                                     px-3
                                     text-sm
@@ -175,9 +210,15 @@ export default function SignupPage() {
                                     transition
                                     placeholder:text-[var(--muted-foreground)]
                                     focus:border-[var(--foreground)]
-                                "
+                                    ${error.password ? "border-red-500 focus:border-red-500" : "border-[var(--border)]"}
+                                `}
                             />
                         </div>
+                        {error.password && (
+                            <p className="text-xs text-red-500">
+                                {error.password}
+                            </p>
+                        )}
 
                         {/* Submit */}
                         <button
