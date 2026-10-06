@@ -11,6 +11,7 @@ export default function UpdateProfile({ user, onClose, onSave }) {
         name: "",
         email: "",
     });
+    const [error, setError] = useState({});
     const userId = user.id;
     const router = useRouter();
 
@@ -29,10 +30,34 @@ export default function UpdateProfile({ user, onClose, onSave }) {
             ...prev,
             [name]: value
         }))
+
+        setError((prev) => ({
+            ...prev,
+            [name]: ""
+        }))
     };
+
+    const validateForm = () => {
+        const errors = {};
+
+        if (!formData.name.trim()) {
+            errors.name = "Name is required"
+        }
+
+        if (!formData.email) {
+            errors.email = "Email is required"
+        } else if (!/^[^\s@]+@[^\s@]+\.[A-Za-z]{2,}$/.test(formData.email)) {
+            errors.email = "Please enter a valid email address";
+        }
+
+        setError(errors);
+
+        return Object.keys(errors).length === 0;
+    }
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        if (!validateForm()) return;
 
         try {
             const res = await api.put("/users/update-user", formData);
@@ -49,7 +74,7 @@ export default function UpdateProfile({ user, onClose, onSave }) {
     };
 
     return (
-        <form onSubmit={handleSubmit} className="space-y-5">
+        <form onSubmit={handleSubmit} noValidate className="space-y-5">
             <div>
                 <label
                     htmlFor="name"
@@ -65,8 +90,13 @@ export default function UpdateProfile({ user, onClose, onSave }) {
                     value={formData.name}
                     onChange={handleChange}
                     placeholder="Enter your name"
-                    className="w-full rounded-lg border dark:border-gray-800 bg-background px-3 py-2.5 text-sm outline-none transition focus:ring-2 focus:ring-primary"
+                    className={`w-full rounded-lg border bg-background px-3 py-2.5 text-sm outline-none transition focus:ring-2 focus:ring-primary ${error.name ? "border-red-500" : "dark:border-gray-800"}`}
                 />
+                {error.name && (
+                    <p className="mt-1 text-xs text-red-500">
+                        {error.name}
+                    </p>
+                )}
             </div>
 
 
@@ -85,8 +115,13 @@ export default function UpdateProfile({ user, onClose, onSave }) {
                     value={formData.email}
                     onChange={handleChange}
                     placeholder="Enter your email"
-                    className="w-full rounded-lg border dark:border-gray-800 bg-background px-3 py-2.5 text-sm outline-none transition focus:ring-2 focus:ring-primary"
+                    className={`w-full rounded-lg border bg-background px-3 py-2.5 text-sm outline-none transition focus:ring-2 focus:ring-primary ${error.email ? "border-red-500" : "dark:border-gray-800"}`}
                 />
+                {error.email && (
+                    <p className="mt-1 text-xs text-red-500">
+                        {error.email}
+                    </p>
+                )}
             </div>
 
 

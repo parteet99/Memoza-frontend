@@ -13,8 +13,8 @@ export default function LoginPage() {
         email: "",
         password: ""
     })
+    const [error, setError] = useState({});
     const [loading, setLoading] = useState(false);
-    const [error, setError] = useState("");
     const router = useRouter();
 
     const handleChange = (e) => {
@@ -24,12 +24,37 @@ export default function LoginPage() {
             ...prev,
             [name]: value
         }))
+
+        setError((prev) => ({
+            ...prev,
+            [name]: ""
+        }))
     }
+
+    const validateForm = () => {
+        const errors = {};
+
+        if (!formData.email.trim()) {
+            errors.email = "Email is required";
+        } else if (!/^[^\s@]+@[^\s@]+\.[A-Za-z]{2,}$/.test(formData.email)) {
+            errors.email = "Please enter a valid email address";
+        }
+
+        if (!formData.password) {
+            errors.password = "Password is required";
+        }
+
+        setError(errors);
+
+        return Object.keys(errors).length === 0;
+    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        if (!validateForm()) {
+            return;
+        }
 
-        setError("");
         setLoading(true);
 
         try {
@@ -88,7 +113,7 @@ export default function LoginPage() {
                         </p>
                     </div>
 
-                    <form className="space-y-5" onSubmit={handleSubmit}>
+                    <form className="space-y-3" noValidate onSubmit={handleSubmit}>
                         {/* Email */}
                         <div>
                             <label
@@ -103,12 +128,11 @@ export default function LoginPage() {
                                 name="email"
                                 type="email"
                                 placeholder="you@example.com"
-                                required
                                 value={formData.email}
                                 onChange={handleChange}
-                                className="
-                                    h-11 w-full rounded-lg
-                                    border border-[var(--border)]
+                                className={
+                                    `h-11 w-full rounded-lg
+                                    border 
                                     bg-[var(--background)]
                                     px-3
                                     text-sm
@@ -117,9 +141,16 @@ export default function LoginPage() {
                                     transition
                                     placeholder:text-[var(--muted-foreground)]
                                     focus:border-[var(--foreground)]
-                                "
+                                    ${error.email ? "border-red-500 focus:border-red-500" : "border-[var(--border)]"}
+                                    `
+                                }
                             />
                         </div>
+                        {error.email && (
+                            <p className="text-xs text-red-500">
+                                {error.email}
+                            </p>
+                        )}
 
                         {/* Password */}
                         <div>
@@ -144,12 +175,11 @@ export default function LoginPage() {
                                 name="password"
                                 type="password"
                                 placeholder="Enter your password"
-                                required
                                 value={formData.password}
                                 onChange={handleChange}
-                                className="
-                                    h-11 w-full rounded-lg
-                                    border border-[var(--border)]
+                                className={
+                                    `h-11 w-full rounded-lg
+                                    border 
                                     bg-[var(--background)]
                                     px-3
                                     text-sm
@@ -158,13 +188,15 @@ export default function LoginPage() {
                                     transition
                                     placeholder:text-[var(--muted-foreground)]
                                     focus:border-[var(--foreground)]
-                                "
+                                    ${error.password ? "border-red-500 focus:border-red-500" : "border-[var(--border)]"}
+                                    `
+                                }
                             />
                         </div>
 
-                        {error && (
-                            <p className="text-sm text-red-500">
-                                {error}
+                        {error.password && (
+                            <p className="text-xs text-red-500">
+                                {error.password}
                             </p>
                         )}
 
