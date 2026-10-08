@@ -58,23 +58,13 @@ export default function LoginPage() {
         setLoading(true);
 
         try {
-            const res = await fetch("/api/auth/login", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify(formData)
-            })
-
-            const data = await res.json();
-
-            if (!res.ok) {
-                throw new Error(data.error || "Invalid email or password")
-            }
-
-            if (data?.success) {
-                notify.success(data?.message || "Login successful");
-                const user = data?.user;
+            const res = await api.post(
+                "/auth/login",
+                formData
+            )
+            if (res?.data?.success) {
+                notify.success(res?.data?.message || "Login successful");
+                const user = res?.data?.user;
                 if (user) {
                     document.cookie = `userId=${user.id}; path=/; max-age=${60 * 60 * 24 * 7};` //7 days
                     document.cookie = `userName=${encodeURIComponent(user.name)}; path=/; max-age=${60 * 60 * 24 * 7}`
@@ -83,7 +73,7 @@ export default function LoginPage() {
             }
         } catch (err) {
             console.error("Login error", err);
-            notify.error(err.message || "Invalid email or password")
+            notify.error(err.response?.data?.message || "Invalid email or password")
         } finally {
             setLoading(false);
         }
