@@ -69,7 +69,7 @@ export default function LoginPage() {
                     document.cookie = `userId=${user.id}; path=/; max-age=${60 * 60 * 24 * 7};` //7 days
                     document.cookie = `userName=${encodeURIComponent(user.name)}; path=/; max-age=${60 * 60 * 24 * 7}`
                 }
-                router.push("/");
+                router.push("/dashboard");
             }
         } catch (err) {
             console.error("Login error", err);
