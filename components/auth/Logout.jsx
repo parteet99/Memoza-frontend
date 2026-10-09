@@ -23,7 +23,6 @@ export default function Logout({ collapsed }) {
                 notify.success(
                     data?.message || "Logout successful"
                 );
-                // Remove non-sensitive UI cookies.
                 document.cookie = "userId=; path=/; max-age=0";
                 document.cookie = "userName=; path=/; max-age=0";
 
