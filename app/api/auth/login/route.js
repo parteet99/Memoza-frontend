@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 
 export async function POST(request) {
     try {
-        const body = request.json();
+        const body = await request.json();
         const response = await fetch(
             `${process.env.BACKEND_URL}/api/auth/login`,
             {
@@ -10,39 +10,49 @@ export async function POST(request) {
                 headers: {
                     "Content-Type": "application/json"
                 },
-                body: JSON.stringify(body)
+                body: JSON.stringify(body),
+                cache: "no-store"
             }
         );
 
-        const data = response.json();
+        const data = await response.json();
 
-        if (!response.ok) {
+        if (!response.ok || !data.success) {
             return NextResponse.json(
-                data,
                 {
-                    status: response.status
-                }
+                    success: false,
+                    message: data.message || data.error || "Login failed"
+                },
+                {status: response.status}
             )
         }
 
-        const nextResponse = NextResponse.json(data);
-
-        const setCookie = response.headers.get("set-cookie");
-
-        if (setCookie) {
-            const tokenMatch = setCookie.match(/token=([^;]+)/)
-            if (tokenMatch) {
-                nextResponse.cookies.set({
-                    name: "token",
-                    value: tokenMatch[1],
-                    httpOnly: true,
-                    secure: true,
-                    sameSite: "lax",
-                    maxAge: 7 * 24 * 60 * 60,
-                    path: "/"
-                })
-            }
+        if (!data.token) {
+            return NextResponse.json(
+                {
+                    success: false,
+                    message: "Authentication token was not returned",
+                },
+                { status: 500 }
+            );
         }
+
+        // keep jwt in http only cookie
+        const nextResponse = NextResponse.json({
+            success: true,
+            message: data.message || "Login successful",
+            user: data.user
+        });
+
+        nextResponse.cookies.set({
+            name: "token",
+            value: data.token,
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "lax",
+            maxAge: 7 * 24 * 60 * 60,
+            path: "/",
+        });
 
         return nextResponse;
     } catch (error) {
@@ -51,7 +61,7 @@ export async function POST(request) {
         return NextResponse.json(
             {
                 success: false,
-                error: "Login failed"
+                error: "Unable to connect to authentication server"
             }, {
                 status: 500
             }

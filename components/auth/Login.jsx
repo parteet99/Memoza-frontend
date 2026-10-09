@@ -67,8 +67,8 @@ export default function LoginPage() {
             })
             const data = await res.json();
             if (data?.success) {
-                notify.success(data?.message || "Login successful");
-                const user = data?.user;
+                notify.success(data.message || "Login successful");
+                const user = data.user;
                 if (user) {
                     document.cookie = `userId=${user.id}; path=/; max-age=${60 * 60 * 24 * 7};` //7 days
                     document.cookie = `userName=${encodeURIComponent(user.name)}; path=/; max-age=${60 * 60 * 24 * 7}`
