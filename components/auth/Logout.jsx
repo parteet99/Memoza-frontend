@@ -14,12 +14,18 @@ export default function Logout({ collapsed }) {
         try {
             setLoading(true);
 
-            const res = await api.post("/auth/logout");
+            const res = await fetch("/api/auth/logout", {
+                method: "POST"
+            })
+            const data = await res.json();
 
-            if (res?.data?.success) {
+            if (data?.success) {
                 notify.success(
-                    res?.data?.message || "Logout successful"
+                    data?.message || "Logout successful"
                 );
+                // Remove non-sensitive UI cookies.
+                document.cookie = "userId=; path=/; max-age=0";
+                document.cookie = "userName=; path=/; max-age=0";
 
                 router.push("/login");
             }
