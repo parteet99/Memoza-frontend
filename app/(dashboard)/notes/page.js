@@ -3,6 +3,10 @@ import api from "@/lib/api"
 import { cookies } from "next/headers";
 
 async function getNotes(token, page = 1) {
+    if (!token) {
+        console.error("SSR: Token cookie is missing");
+        return null;
+    }
     try {
         const response = await api.get(`/notes/get-notes`, {
             params: {
