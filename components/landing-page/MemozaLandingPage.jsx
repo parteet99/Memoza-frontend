@@ -9,7 +9,7 @@ export default function MemozaLandingPage() {
                 <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-5 sm:px-8 lg:px-10">
                     <Link href="/" className="flex items-center gap-2.5">
                         <span className="flex h-10 w-10 items-center justify-center rounded-lg border-2 border-slate-900">
-                            <Image src="/M.png" width={150} height={150} alt="Memoza" className="rounded-md"/>
+                            <Image src="/icon.png" width={150} height={150} alt="Memoza" className="rounded-md"/>
                         </span>
                         <span className="text-lg font-semibold tracking-tight">Memoza</span>
                     </Link>
@@ -170,7 +170,7 @@ export default function MemozaLandingPage() {
                 <div className="mx-auto max-w-7xl px-5 py-8 sm:px-8 lg:px-10">
                     <div className="flex flex-col gap-8 sm:flex-row sm:items-center sm:justify-between">
                         <div>
-                            <Link href="/" className="flex items-center gap-2.5"><span className="flex h-10 w-10 items-center justify-center rounded-md border-2 border-slate-900"><Image src="/M.png" width={150} height={150} alt="Memoza" className="rounded-md"/></span><span className="font-semibold">Memoza</span></Link>
+                            <Link href="/" className="flex items-center gap-2.5"><span className="flex h-10 w-10 items-center justify-center rounded-md border-2 border-slate-900"><Image src="/icon.png" width={150} height={150} alt="Memoza" className="rounded-md"/></span><span className="font-semibold">Memoza</span></Link>
                             <p className="mt-2 text-sm text-slate-500">A simple and focused note-taking app.</p>
                         </div>
                         <div className="flex flex-wrap gap-x-6 gap-y-3 text-sm text-slate-500"><a href="#features" className="hover:text-slate-950">Features</a><a href="#how-it-works" className="hover:text-slate-950">How it works</a><a href="#about" className="hover:text-slate-950">About</a><a href="/privacy" className="hover:text-slate-950">Privacy</a><a href="/terms" className="hover:text-slate-950">Terms</a></div>

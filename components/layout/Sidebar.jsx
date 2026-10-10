@@ -117,7 +117,7 @@ export default function Sidebar() {
                             text-[var(--primary-foreground)]
                         "
                     >
-                        <Image src="/M.png" width={150} height={150} alt="Memoza" className="rounded-md"/>
+                        <Image src="/icon.png" width={150} height={150} alt="Memoza" className="rounded-md"/>
                     </div>
 
                     {!collapsed && (
