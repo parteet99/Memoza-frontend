@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
     NotebookPen,
     Star,
@@ -12,7 +12,8 @@ import {
     User,
     PanelLeftClose,
     PanelLeftOpen,
-    LockKeyhole
+    LockKeyhole,
+    X
 } from "lucide-react";
 import ThemeToggle from "../theme/ThemeToggle";
 import Logout from "../auth/Logout";
@@ -70,9 +71,14 @@ const bottomNavigation = [
     }
 ];
 
-export default function Sidebar() {
+export default function Sidebar({ mobileOpen = false, onMobileClose = () => { } }) {
     const pathname = usePathname();
     const [collapsed, setCollapsed] = useState(false);
+
+    // close sidebar when route changes(mobile only)
+    useEffect(() => {
+        onMobileClose();
+    }, [pathname])
 
     const isActive = (href) => {
         if (href === "/notes") {
@@ -83,167 +89,93 @@ export default function Sidebar() {
     };
 
     return (
-        <aside
-            className={`
-                relative flex h-screen flex-col
-                border-r border-[var(--border)]
-                bg-[var(--background)]
-                text-[var(--foreground)]
-                transition-all duration-300 ease-in-out
-                ${collapsed ? "w-[72px]" : "w-[260px]"}
-            `}
-        >
-            {/* Header */}
-            <div
+        <>
+            {/* mobile backdrop */}
+            {mobileOpen && (
+                <div
+                    onClick={onMobileClose}
+                    className="fixed inset-0 z-40 bg-black/40 md:hidden"
+                    aria-hidden="true"
+                />
+            )}
+            <aside
                 className={`
-                    flex h-16 shrink-0 items-center
-                    border-b border-[var(--border)]
-                    ${collapsed
-                        ? "justify-center px-3"
-                        : "justify-between px-4"
-                    }
+                    fixed inset-y-0 left-0 z-50 flex h-dvh flex-col
+                    border-r border-[var(--border)]
+                    bg-[var(--background)]
+                    text-[var(--foreground)]
+                    transition-all duration-300 ease-in-out
+                    ${mobileOpen ? "translate-x-0" : "-translate-x-full"}
+                    md:relative md:z-auto md:translate-x-0 md:h-screen
+                    ${collapsed ? "md:w-[72px]" : "md:w-[260px]"}
+                    w-[260px]
                 `}
             >
-                {/* Logo */}
-                <Link
-                    href="/"
-                    className="flex min-w-0 items-center gap-3"
+                {/* Header */}
+                <div
+                    className={`
+                        flex h-16 shrink-0 items-center
+                        border-b border-[var(--border)]
+                        ${collapsed ? "md:justify-center md:px-3 justify-between px-4" : "justify-between px-4"}
+                    `}
                 >
-                    <div
-                        className="
-                            flex h-9 w-9 shrink-0
-                            items-center justify-center
-                            text-sm font-bold
-                            text-[var(--primary-foreground)]
-                        "
-                    >
-                        <Image src="/icon.png" width={150} height={150} alt="Memoza" className="rounded-md"/>
-                    </div>
+                    {/* Logo */}
+                    <Link href="/" className="flex min-w-0 items-center gap-3">
+                        <div className="flex h-9 w-9 shrink-0 items-center justify-center">
+                            <Image src="/icon.png" width={150} height={150} alt="Memoza" className="rounded-md" />
+                        </div>
+                        {!collapsed && (
+                            <span className="truncate text-lg font-semibold tracking-tight">Memoza</span>
+                        )}
+                    </Link>
 
+                    {/* Desktop collapse button */}
                     {!collapsed && (
-                        <span className="truncate text-lg font-semibold tracking-tight">
-                            Memoza
-                        </span>
-                    )}
-                </Link>
-
-                {/* Collapse button */}
-                {!collapsed && (
-                    <button
-                        type="button"
-                        onClick={() => setCollapsed(true)}
-                        aria-label="Collapse sidebar"
-                        className="
-                            flex h-9 w-9 shrink-0
-                            items-center justify-center
-                            rounded-lg
-                            text-[var(--muted-foreground)]
-                            transition-colors
-                            hover:bg-[var(--muted)]
-                            hover:text-[var(--foreground)]
-                        "
-                    >
-                        <PanelLeftClose
-                            size={19}
-                            strokeWidth={1.8}
-                        />
-                    </button>
-                )}
-            </div>
-
-            {/* Expand button */}
-            {collapsed && (
-                <div className="flex justify-center px-3 py-3">
-                    <button
-                        type="button"
-                        onClick={() => setCollapsed(false)}
-                        aria-label="Expand sidebar"
-                        className="
-                            flex h-9 w-9
-                            items-center justify-center
-                            rounded-lg
-                            text-[var(--muted-foreground)]
-                            transition-colors
-                            hover:bg-[var(--muted)]
-                            hover:text-[var(--foreground)]
-                        "
-                    >
-                        <PanelLeftOpen
-                            size={19}
-                            strokeWidth={1.8}
-                        />
-                    </button>
-                </div>
-            )}
-
-            {/* Navigation */}
-            <nav className="flex-1 overflow-y-auto px-3 py-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-                {/* Main navigation */}
-                <div className="space-y-1">
-                    {navigation.map((item) => {
-                        const Icon = item.icon;
-                        const active = isActive(item.href);
-
-                        return (
-                            <Link
-                                key={item.href}
-                                href={item.href}
-                                title={
-                                    collapsed
-                                        ? item.title
-                                        : undefined
-                                }
-                                className={`
-                                    group flex h-11
-                                    items-center rounded-xl
-                                    transition-all duration-200
-                                    ${
-                                        collapsed
-                                            ? "justify-center px-2"
-                                            : "gap-3 px-3"
-                                    }
-                                    ${
-                                        active
-                                            ? "bg-[var(--primary)] text-[var(--primary-foreground)]"
-                                            : "text-[var(--muted-foreground)] hover:bg-[var(--muted)] hover:text-[var(--foreground)]"
-                                    }
-                                `}
-                            >
-                                <Icon
-                                    size={20}
-                                    strokeWidth={active ? 2 : 1.8}
-                                    className="shrink-0"
-                                />
-
-                                {!collapsed && (
-                                    <span className="truncate text-sm font-medium">
-                                        {item.title}
-                                    </span>
-                                )}
-                            </Link>
-                        );
-                    })}
-                </div>
-
-                {/* Workspace */}
-                <div className="mt-8">
-                    {!collapsed && (
-                        <p
-                            className="
-                                mb-2 px-3
-                                text-[11px]
-                                font-semibold
-                                uppercase
-                                tracking-wider
-                                text-[var(--muted-foreground)]
-                            "
+                        <button
+                            type="button"
+                            onClick={() => setCollapsed(true)}
+                            aria-label="Collapse sidebar"
+                            className="hidden md:flex h-9 w-9 shrink-0 items-center justify-center rounded-lg
+                                text-[var(--muted-foreground)] transition-colors
+                                hover:bg-[var(--muted)] hover:text-[var(--foreground)]"
                         >
-                            Workspace
-                        </p>
+                            <PanelLeftClose size={19} strokeWidth={1.8} />
+                        </button>
                     )}
 
+                    {/* Mobile close button */}
+                    <button
+                        type="button"
+                        onClick={onMobileClose}
+                        aria-label="Close menu"
+                        className="flex md:hidden h-9 w-9 shrink-0 items-center justify-center rounded-lg
+                            text-[var(--muted-foreground)] hover:bg-[var(--muted)]"
+                    >
+                        <X size={19} strokeWidth={1.8} />
+                    </button>
+                </div>
+
+                {/* Desktop expand button */}
+                {collapsed && (
+                    <div className="hidden md:flex justify-center px-3 py-3">
+                        <button
+                            type="button"
+                            onClick={() => setCollapsed(false)}
+                            aria-label="Expand sidebar"
+                            className="flex h-9 w-9 items-center justify-center rounded-lg
+                                text-[var(--muted-foreground)] transition-colors
+                                hover:bg-[var(--muted)] hover:text-[var(--foreground)]"
+                        >
+                            <PanelLeftOpen size={19} strokeWidth={1.8} />
+                        </button>
+                    </div>
+                )}
+
+                {/* Navigation */}
+                <nav className="flex-1 overflow-y-auto px-3 py-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                    {/* Main navigation */}
                     <div className="space-y-1">
-                        {workspaceNavigation.map((item) => {
+                        {navigation.map((item) => {
                             const Icon = item.icon;
                             const active = isActive(item.href);
 
@@ -257,20 +189,140 @@ export default function Sidebar() {
                                             : undefined
                                     }
                                     className={`
+                                    group flex h-11
+                                    items-center rounded-xl
+                                    transition-all duration-200
+                                    ${collapsed
+                                            ? "justify-center px-2"
+                                            : "gap-3 px-3"
+                                        }
+                                    ${active
+                                            ? "bg-[var(--primary)] text-[var(--primary-foreground)]"
+                                            : "text-[var(--muted-foreground)] hover:bg-[var(--muted)] hover:text-[var(--foreground)]"
+                                        }
+                                `}
+                                >
+                                    <Icon
+                                        size={20}
+                                        strokeWidth={active ? 2 : 1.8}
+                                        className="shrink-0"
+                                    />
+
+                                    {!collapsed && (
+                                        <span className="truncate text-sm font-medium">
+                                            {item.title}
+                                        </span>
+                                    )}
+                                </Link>
+                            );
+                        })}
+                    </div>
+
+                    {/* Workspace */}
+                    <div className="mt-8">
+                        {!collapsed && (
+                            <p
+                                className="
+                                mb-2 px-3
+                                text-[11px]
+                                font-semibold
+                                uppercase
+                                tracking-wider
+                                text-[var(--muted-foreground)]
+                            "
+                            >
+                                Workspace
+                            </p>
+                        )}
+
+                        <div className="space-y-1">
+                            {workspaceNavigation.map((item) => {
+                                const Icon = item.icon;
+                                const active = isActive(item.href);
+
+                                return (
+                                    <Link
+                                        key={item.href}
+                                        href={item.href}
+                                        title={
+                                            collapsed
+                                                ? item.title
+                                                : undefined
+                                        }
+                                        className={`
                                         group flex h-11
                                         items-center rounded-xl
                                         transition-all duration-200
-                                        ${
-                                            collapsed
+                                        ${collapsed
                                                 ? "justify-center px-2"
                                                 : "gap-3 px-3"
-                                        }
-                                        ${
-                                            active
+                                            }
+                                        ${active
                                                 ? "bg-[var(--primary)] text-[var(--primary-foreground)]"
                                                 : "text-[var(--muted-foreground)] hover:bg-[var(--muted)] hover:text-[var(--foreground)]"
-                                        }
+                                            }
                                     `}
+                                    >
+                                        <Icon
+                                            size={20}
+                                            strokeWidth={active ? 2 : 1.8}
+                                            className="shrink-0"
+                                        />
+
+                                        {!collapsed && (
+                                            <span className="truncate text-sm font-medium">
+                                                {item.title}
+                                            </span>
+                                        )}
+                                    </Link>
+                                );
+                            })}
+                        </div>
+                    </div>
+                </nav>
+
+                {/* Bottom navigation */}
+                <div
+                    className="
+                    shrink-0
+                    border-t
+                    border-[var(--border)]
+                    p-3
+                "
+                >
+                    <div className="space-y-1">
+                        {bottomNavigation.map((item) => {
+                            if (item.component) {
+                                const Component = item.component;
+                                return (
+                                    <Component key={item.title} collapsed={collapsed} />
+                                )
+                            }
+                            const Icon = item.icon;
+                            const active = isActive(item.href);
+
+                            return (
+                                <Link
+                                    key={item.href}
+                                    href={item.href}
+                                    title={
+                                        collapsed
+                                            ? item.title
+                                            : undefined
+                                    }
+                                    className={`
+                                    group flex h-8
+                                    items-center rounded-xl
+                                    transition-all duration-200
+                                    ${collapsed
+                                            ? "justify-center px-2"
+                                            : "gap-3 px-3"
+                                        }
+                                    ${active
+                                            ? "bg-[var(--primary)] text-[var(--primary-foreground)]"
+                                            : "text-[var(--muted-foreground)] hover:bg-[var(--muted)] hover:text-[var(--foreground)]"
+                                        }
+                                `}
                                 >
                                     <Icon
                                         size={20}
@@ -288,69 +340,7 @@ export default function Sidebar() {
                         })}
                     </div>
                 </div>
-            </nav>
-
-            {/* Bottom navigation */}
-            <div
-                className="
-                    shrink-0
-                    border-t
-                    border-[var(--border)]
-                    p-3
-                "
-            >
-                <div className="space-y-1">
-                    {bottomNavigation.map((item) => {
-                        if (item.component) {
-                            const Component = item.component;
-                            return (
-                                <Component key={item.title} collapsed={collapsed} />
-                            )
-                        }
-                        const Icon = item.icon;
-                        const active = isActive(item.href);
-
-                        return (
-                            <Link
-                                key={item.href}
-                                href={item.href}
-                                title={
-                                    collapsed
-                                        ? item.title
-                                        : undefined
-                                }
-                                className={`
-                                    group flex h-8
-                                    items-center rounded-xl
-                                    transition-all duration-200
-                                    ${
-                                        collapsed
-                                            ? "justify-center px-2"
-                                            : "gap-3 px-3"
-                                    }
-                                    ${
-                                        active
-                                            ? "bg-[var(--primary)] text-[var(--primary-foreground)]"
-                                            : "text-[var(--muted-foreground)] hover:bg-[var(--muted)] hover:text-[var(--foreground)]"
-                                    }
-                                `}
-                            >
-                                <Icon
-                                    size={20}
-                                    strokeWidth={active ? 2 : 1.8}
-                                    className="shrink-0"
-                                />
-
-                                {!collapsed && (
-                                    <span className="truncate text-sm font-medium">
-                                        {item.title}
-                                    </span>
-                                )}
-                            </Link>
-                        );
-                    })}
-                </div>
-            </div>
-        </aside>
+            </aside>
+        </>
     );
 }
