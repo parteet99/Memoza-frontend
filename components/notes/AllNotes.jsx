@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useRef } from "react";
 import NoteModal from "./NoteModal";
-import { Eye, Trash2, FolderUp, Pin, Star, PinOff, StarOff, Archive, Search, Plus, Upload } from "lucide-react";
+import { Eye, Trash2, FolderUp, Pin, Star, PinOff, StarOff, Archive, Search, Plus, Upload, MoreVertical } from "lucide-react";
 import ConfirmationModal from "../ui/ConfirmationModal";
 import api from "@/lib/api";
 import { notify } from "@/lib/notification";
@@ -18,6 +18,7 @@ export default function AllNotes({ notes }) {
     );
     const router = useRouter();
 
+    const [activeMenuId, setActiveMenuId] = useState(null);
     const [selectedNote, setSelectedNote] = useState(null);
     const [showCreateModal, setShowCreateModal] = useState(false);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -283,7 +284,7 @@ export default function AllNotes({ notes }) {
                         {noteList.map((note) => (
                             <div
                                 key={note.id}
-                                className="group relative overflow-hidden rounded-xl border dark:border-gray-700 border-gray-300 p-5 shadow-sm transition hover:-translate-y-1 hover:shadow-md"
+                                className="group relative rounded-xl border dark:border-gray-700 border-gray-300 p-5 shadow-sm transition hover:-translate-y-1 hover:shadow-md"
                             >
                                 {/* Title */}
                                 <h3 className="mb-2 truncate text-lg font-semibold text-gray-900 dark:text-white">
@@ -320,9 +321,107 @@ export default function AllNotes({ notes }) {
                                     </div>
 
                                 </div>
+                                <button
+                                    type="button"
+                                    onClick={(e) => {
+                                        e.stopPropagation();
 
+                                        setActiveMenuId((prev) =>
+                                            prev === note.id ? null : note.id
+                                        );
+                                    }}
+                                    className="
+                                        absolute right-3 top-3 z-20
+                                        flex h-9 w-9 items-center justify-center
+                                        rounded-full border border-gray-200
+                                        bg-white text-gray-700 shadow-sm
+                                        hover:bg-gray-100
+                                        dark:border-gray-700 dark:bg-gray-900
+                                        dark:text-gray-200 dark:hover:bg-gray-800
+                                        md:hidden
+                                    "
+                                    aria-label="Note options"
+                                >
+                                    <MoreVertical size={18} />
+                                </button>
+                                {activeMenuId === note.id && (
+                                    <div
+                                        className="
+                                            absolute right-3 top-14 z-50
+                                            w-48 rounded-xl border border-gray-200
+                                            bg-white p-1.5 shadow-xl
+                                            dark:border-gray-700 dark:bg-gray-900
+                                            md:hidden
+                                            "
+                                        onClick={(e) => e.stopPropagation()}
+                                    >
+                                        <button
+                                            onClick={() => {
+                                                handlePinNote(note.id, note.is_pinned);
+                                                setActiveMenuId(null);
+                                            }}
+                                            className="w-full rounded-lg px-3 py-2.5 text-left text-sm hover:bg-gray-100 dark:hover:bg-gray-800"
+                                        >
+                                            {note.is_pinned ? "Unpin note" : "Pin note"}
+                                        </button>
+
+                                        <button
+                                            onClick={() => {
+                                                handleStarNote(note.id, note.is_favorite);
+                                                setActiveMenuId(null);
+                                            }}
+                                            className="w-full rounded-lg px-3 py-2.5 text-left text-sm hover:bg-gray-100 dark:hover:bg-gray-800"
+                                        >
+                                            {note.is_favorite
+                                                ? "Remove from favorites"
+                                                : "Add to favorites"}
+                                        </button>
+
+                                        <button
+                                            onClick={() => {
+                                                handleArchiveNote(note.id, note.is_archived);
+                                                setActiveMenuId(null);
+                                            }}
+                                            className="w-full rounded-lg px-3 py-2.5 text-left text-sm hover:bg-gray-100 dark:hover:bg-gray-800"
+                                        >
+                                            Archive note
+                                        </button>
+
+                                        <button
+                                            onClick={() => {
+                                                setNoteId(note.id);
+                                                setOpenFolderSelector(true);
+                                                setActiveMenuId(null);
+                                            }}
+                                            className="w-full rounded-lg px-3 py-2.5 text-left text-sm hover:bg-gray-100 dark:hover:bg-gray-800"
+                                        >
+                                            Move to folder
+                                        </button>
+
+                                        <button
+                                            onClick={() => {
+                                                setDeleteNoteId(note.id);
+                                                setShowDeleteModal(true);
+                                                setActiveMenuId(null);
+                                            }}
+                                            className="w-full rounded-lg px-3 py-2.5 text-left text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30"
+                                        >
+                                            Move to trash
+                                        </button>
+
+                                        <button
+                                            onClick={() => {
+                                                handleNoteClick(note);
+                                                setActiveMenuId(null);
+                                            }}
+                                            className="w-full rounded-lg px-3 py-2.5 text-left text-sm hover:bg-gray-100 dark:hover:bg-gray-800"
+                                        >
+                                            Open note
+                                        </button>
+                                    </div>
+                                )}
                                 <div
-                                    className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-black-30 backdrop-blur-sm opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+                                    className="absolute inset-0 hidden md:flex flex-col items-center justify-center gap-3 bg-black-30 backdrop-blur-sm opacity-0 transition-opacity duration-300 group-hover:opacity-100"
                                 >
                                     <div className="flex items-center justify-center gap-3">
                                         <button
