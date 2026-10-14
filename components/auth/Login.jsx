@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 // import api from "@/lib/api";
-import axios from "axios";
+// import axios from "axios";
 import { notify } from "@/lib/notification";
 import Image from "next/image";
 
@@ -53,33 +53,38 @@ export default function LoginPage() {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        if (!validateForm()) {
-            return;
-        }
+        if (!validateForm()) return;
 
         setLoading(true);
 
         try {
-            const res = await axios.post("/api/auth/login", formData);
+            const res = await fetch("/api/auth/login", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(formData),
+            });
 
-            if (res.data?.success) {
-                notify.success(res.data.message || "Login successful");
+            const data = await res.json();
 
-                const user = res.data.user;
-
-                if (user) {
-                    document.cookie = `userId=${user.id}; path=/; max-age=${60 * 60 * 24 * 7}`;
-                    document.cookie = `userName=${encodeURIComponent(user.name)}; path=/; max-age=${60 * 60 * 24 * 7}`;
-                }
-
-                router.push("/dashboard");
+            if (!res.ok || !data.success) {
+                throw new Error(data.message || data.error || "Login failed");
             }
+
+            notify.success(data.message || "Login successful");
+
+            const user = data.user;
+
+            if (user) {
+                document.cookie = `userId=${user.id}; path=/; max-age=${60 * 60 * 24 * 7}`;
+                document.cookie = `userName=${encodeURIComponent(user.name)}; path=/; max-age=${60 * 60 * 24 * 7}`;
+            }
+
+            router.push("/dashboard");
         } catch (err) {
             console.error("Login error:", err);
-
-            notify.error(
-                err.response?.data?.message || "Invalid email or password"
-            );
+            notify.error(err.message || "Invalid email or password");
         } finally {
             setLoading(false);
         }
