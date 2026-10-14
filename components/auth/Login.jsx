@@ -3,8 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-// import api from "@/lib/api";
-// import axios from "axios";
+import api from "@/lib/api";
 import { notify } from "@/lib/notification";
 import Image from "next/image";
 
