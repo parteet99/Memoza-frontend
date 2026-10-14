@@ -3,7 +3,8 @@
 import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import api from "@/lib/api";
+// import api from "@/lib/api";
+import axios from "axios";
 import { notify } from "@/lib/notification";
 import Image from "next/image";
 
@@ -51,6 +52,7 @@ export default function LoginPage() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+
         if (!validateForm()) {
             return;
         }
@@ -58,26 +60,30 @@ export default function LoginPage() {
         setLoading(true);
 
         try {
-            const res = await api.post(
-                "/auth/login",
-                formData
-            )
-            if (res?.data?.success) {
-                notify.success(res?.data?.message || "Login successful");
-                const user = res?.data?.user;
+            const res = await axios.post("/api/auth/login", formData);
+
+            if (res.data?.success) {
+                notify.success(res.data.message || "Login successful");
+
+                const user = res.data.user;
+
                 if (user) {
-                    document.cookie = `userId=${user.id}; path=/; max-age=${60 * 60 * 24 * 7};` //7 days
-                    document.cookie = `userName=${encodeURIComponent(user.name)}; path=/; max-age=${60 * 60 * 24 * 7}`
+                    document.cookie = `userId=${user.id}; path=/; max-age=${60 * 60 * 24 * 7}`;
+                    document.cookie = `userName=${encodeURIComponent(user.name)}; path=/; max-age=${60 * 60 * 24 * 7}`;
                 }
+
                 router.push("/dashboard");
             }
         } catch (err) {
-            console.error("Login error", err);
-            notify.error(err.response?.data?.message || "Invalid email or password")
+            console.error("Login error:", err);
+
+            notify.error(
+                err.response?.data?.message || "Invalid email or password"
+            );
         } finally {
             setLoading(false);
         }
-    }
+    };
     return (
         <main className="flex min-h-screen items-center justify-center bg-[var(--background)] px-4 text-[var(--foreground)]">
             <div className="w-full max-w-md">
