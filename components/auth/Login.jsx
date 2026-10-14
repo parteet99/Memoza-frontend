@@ -58,29 +58,19 @@ export default function LoginPage() {
         setLoading(true);
 
         try {
-            const res = await fetch("/api/auth/login", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(formData),
-            });
+            const res = await api.post(
+                "/auth/login",
+                formData
+            )
+            if (res?.data?.success) {
+                notify.success(res?.data?.message || "Login successful");
+                const user = res?.data?.user;
 
-            const data = await res.json();
-
-            if (!res.ok || !data.success) {
-                throw new Error(data.message || data.error || "Login failed");
+                if (user) {
+                    document.cookie = `userId=${user.id}; path=/; max-age=${60 * 60 * 24 * 7}`;
+                    document.cookie = `userName=${encodeURIComponent(user.name)}; path=/; max-age=${60 * 60 * 24 * 7}`;
+                }
             }
-
-            notify.success(data.message || "Login successful");
-
-            const user = data.user;
-
-            if (user) {
-                document.cookie = `userId=${user.id}; path=/; max-age=${60 * 60 * 24 * 7}`;
-                document.cookie = `userName=${encodeURIComponent(user.name)}; path=/; max-age=${60 * 60 * 24 * 7}`;
-            }
-
             router.push("/dashboard");
         } catch (err) {
             console.error("Login error:", err);
