@@ -11,6 +11,7 @@ export async function POST(request) {
         );
 
         const data = response.data;
+        const backendCookie = response.headers["set-cookie"];
 
         if (!data.success || !data.token) {
             return NextResponse.json(
@@ -35,6 +36,12 @@ export async function POST(request) {
             maxAge: 7 * 24 * 60 * 60,
             path: "/",
         });
+
+        if (backendCookie) {
+            for (const cookie of backendCookie) {
+                nextResponse.headers.append("Set-Cookie", cookie)
+            }
+        }
 
         return nextResponse;
     } catch (error) {
