@@ -168,10 +168,10 @@ export default function AllNotes() {
 
     //add new created note to grid
     const handleNoteCreated = (newNote) => {
-        // setNoteList((prevNotes) => [
-        //     newNote,
-        //     ...prevNotes,
-        // ]);
+        setNoteList((prevNotes) => [
+            newNote,
+            ...prevNotes,
+        ]);
 
         setShowCreateModal(false);
         router.push("/notes?page=1")
