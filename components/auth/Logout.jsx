@@ -14,14 +14,10 @@ export default function Logout({ collapsed }) {
         try {
             setLoading(true);
 
-            const res = await fetch("/api/auth/logout", {
-                method: "POST"
-            })
-            const data = await res.json();
-
-            if (data?.success) {
+            const res = await api.post("/auth/logout");
+            if (res?.data?.success) {
                 notify.success(
-                    data?.message || "Logout successful"
+                    res?.data?.message || "Logout successful"
                 );
                 document.cookie = "userId=; path=/; max-age=0";
                 document.cookie = "userName=; path=/; max-age=0";
