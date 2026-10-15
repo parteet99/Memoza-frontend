@@ -12,10 +12,10 @@ import Pagination from "../ui/Pagination";
 import importNoteFromJson from "@/lib/importNote";
 import importNoteFromText from "@/lib/importTextNote";
 
-export default function AllNotes({ notes }) {
-    const [noteList, setNoteList] = useState(
-        notes?.notes || []
-    );
+export default function AllNotes() {
+    const [noteList, setNoteList] = useState([]);
+    const [notes, setNotes] = useState(null);
+    const [loading, setLoading] = useState(true);
     const router = useRouter();
 
     const [activeMenuId, setActiveMenuId] = useState(null);
@@ -28,21 +28,43 @@ export default function AllNotes({ notes }) {
     const [noteId, setNoteId] = useState(null);
     const [search, setSearch] = useState("");
     const [searching, setSearching] = useState(false);
+    const [refreshKey, setRefreshKey] = useState(0);
 
     const [showImportMenu, setShowImportMenu] = useState(false);
     const [importType, setImportType] = useState(null);
     const fileInputRef = useRef(null);
 
     useEffect(() => {
-        setNoteList(notes?.notes || []);
-    }, [notes]);
+        const fetchNote = async () => {
+            try {
+                setLoading(true);
+                const page = Number(new URLSearchParams(window.location.search).get("page") || 1);
+
+                const res = await api.get("/notes/get-notes", {
+                    params: {
+                        page,
+                        limit: 10
+                    }
+                });
+
+                setNotes(res.data);
+                setNoteList(res.data?.notes || []);
+            } catch (error) {
+                console.error("Failed to fetch notes: ", error);
+                setNoteList([]);
+            } finally {
+                setLoading(false);
+            }
+        }
+
+        fetchNote();
+    }, [refreshKey]);
 
     useEffect(() => {
         const timer = setTimeout(async () => {
             const query = search.trim();
 
             if (!query) {
-                setNoteList(notes?.notes || []);
                 return;
             }
 
@@ -64,7 +86,13 @@ export default function AllNotes({ notes }) {
         }, 500)
 
         return () => clearTimeout(timer);
-    }, [search, notes])
+    }, [search])
+
+    useEffect(() => {
+        if (!search.trim() && notes) {
+            setNoteList(notes.notes || []);
+        }
+    }, [search, notes]);
     
     const handleImportClick = (type) => {
         setImportType(type);
@@ -157,7 +185,7 @@ export default function AllNotes({ notes }) {
             });
             if (res?.data?.success) {
                 notify.success(res?.data?.message || "Note deleted successfully");
-                router.refresh();
+                setNoteList((prev) => prev.filter((note) => note.id !== deleteNoteId));
                 setShowDeleteModal(false);
                 setDeleteNoteId(null);
             }
@@ -176,7 +204,8 @@ export default function AllNotes({ notes }) {
                 is_pinned: !isPinned
             })
             if (res?.data?.success) {
-                notify.success(res?.data?.message || (isPinned ?  "Note Unpinned successfully" : "Note pinned successfully"));
+                notify.success(res?.data?.message || (isPinned ? "Note Unpinned successfully" : "Note pinned successfully"));
+                setRefreshKey((prev) => prev + 1);
                 router.refresh();
             }
         } catch (error) {
@@ -191,7 +220,8 @@ export default function AllNotes({ notes }) {
                 is_favorite: !isStarred
             })
             if (res?.data?.success) {
-                notify.success(res?.data?.message || (isStarred ?  "Note removed from favorite successfully" : "Note added to favorite successfully"));
+                notify.success(res?.data?.message || (isStarred ? "Note removed from favorite successfully" : "Note added to favorite successfully"));
+                setRefreshKey((prev) => prev + 1);
                 router.refresh();
             }
         } catch (error) {
@@ -207,11 +237,19 @@ export default function AllNotes({ notes }) {
             })
             if (res?.data?.success) {
                 notify.success(res?.data?.message || "Note archived successfully");
-                router.refresh();
+                setNoteList((prev) => prev.filter((note) => note.id !== noteId));
             }
         } catch (error) {
             console.error("Error archiving note", error);
         }
+    }
+
+    if (loading) {
+        return (
+            <div className="flex items-center justify-center h-screen">
+                Loading notes...
+            </div>
+        )
     }
 
     return (

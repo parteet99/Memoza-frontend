@@ -4,18 +4,49 @@ import { CalendarDays, Mail, User, Hash, Camera } from "lucide-react";
 import { getImageUrl } from "@/lib/imageUrl";
 import Avatar from "../ui/Avatar";
 import UpdateProfile from "./UpdateProfile";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import Modal from "../ui/Modal";
 import api from "@/lib/api";
 import { notify } from "@/lib/notification";
 
-export default function UserProfile({ user }) {
+export default function UserProfile() {
+    const [user, setUser] = useState(null);
+    const [loading, setLoading] = useState(true);
     const [editProfile, setEditProfile] = useState(false);
-    const [profileImage, setProfileImage] = useState(user?.user?.profile_image);
-    console.log({profileImage})
+    const [profileImage, setProfileImage] = useState("");
     const [uploadingImage, setUploadingImage] = useState(false);
+    const [refreshKey, setRefreshKey] = useState(0);
 
     const fileInputRef = useRef(null);
+
+    useEffect(() => {
+        const fetchProfile = async () => {
+            try {
+                const userId = document.cookie
+                    .split("; ")
+                    .find((cookie) => cookie.startsWith("userId="))
+                    ?.split("=")[1];
+
+                if (!userId) {
+                    notify.error("User ID not found.");
+                    return;
+                }
+
+                const res = await api.get(`/users/${userId}`);
+                if (res?.data) {
+                    setUser(res.data);
+                    setProfileImage(res.data?.user?.profile_image || "");
+                }
+            } catch (error) {
+                console.error("Failed to fetch profile", error);
+                setUser(null);
+            } finally {
+                setLoading(false);
+            }
+        }
+
+        fetchProfile()
+    }, [refreshKey])
 
     const handleImageClick = () => {
         fileInputRef.current?.click();
@@ -61,6 +92,14 @@ export default function UserProfile({ user }) {
             e.target.value = ""; //allow selecting same image again
         }
     };
+
+    if (loading) {
+        return <div className="flex items-center justify-center h-screen">Loading profile...</div>;
+    }
+
+    if (!user) {
+        return <div className="flex items-center justify-center h-screen">Failed to load profile.</div>;
+    }
 
     return (
         <div className="min-h-full p-6">
@@ -227,8 +266,8 @@ export default function UserProfile({ user }) {
                 <UpdateProfile
                     user={user.user}
                     onClose={() => setEditProfile(false)}
-                    onSave={(data) => {
-                        console.log("Profile data:", data);
+                    onSave={() => {
+                        setRefreshKey((prev) => prev + 1);
                     }}
                 />
             </Modal>

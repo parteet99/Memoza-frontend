@@ -1,20 +1,38 @@
 "use client"
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Trash2, Eye, Check, RotateCcw } from "lucide-react";
 import ConfirmationModal from "./ui/ConfirmationModal";
 import NoteModal from "./notes/NoteModal";
 import { notify } from "@/lib/notification";
 import api from "@/lib/api";
 
-export default function TrashFile({ notes }) {
-    const [noteList, setNoteList] = useState(
-        notes?.notes || []
-    );
+export default function TrashFile() {
+    const [noteList, setNoteList] = useState([]);
     const [selectedNote, setSelectedNote] = useState(null);
     const [showCreateModal, setShowCreateModal] = useState(false);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [deleteNoteId, setDeleteNoteId] = useState([]);
     const [deleting, setDeleting] = useState(false);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchTrashNotes = async () => {
+            try {
+                setLoading(true);
+                const res = await api.get("/notes/trash-notes");
+                if (res.data?.success) {
+                    setNoteList(res.data?.notes || []);
+                }
+            } catch (error) {
+                console.error("Failed to fetch trash notes", error);
+                setNoteList([])
+            } finally {
+                setLoading(false);
+            }
+        }
+
+        fetchTrashNotes();
+    }, [])
 
     const handleSelectNote = (id) => {
         setDeleteNoteId((prev) => {
@@ -88,6 +106,14 @@ export default function TrashFile({ notes }) {
         } finally {
             setDeleting(false);
         }
+    }
+
+    if (loading) {
+        return (
+            <div className="flex items-center justify-center h-screen">
+                Loading notes...
+            </div>
+        )
     }
     return (
         <div className="p-6">

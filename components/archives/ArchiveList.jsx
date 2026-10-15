@@ -1,17 +1,37 @@
 "use client"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import api from "@/lib/api";
 import { ArchiveRestore, Trash2, Eye } from "lucide-react";
 import NoteModal from "../notes/NoteModal";
 import ConfirmationModal from "../ui/ConfirmationModal";
 import { notify } from "@/lib/notification";
 
-export default function ArchiveList({ notes }) {
-    const [noteList, setNoteList] = useState(notes?.notes || []);
+export default function ArchiveList() {
+    const [noteList, setNoteList] = useState([]);
+    const [loading, setLoading] = useState(true);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [deleteNoteId, setDeleteNoteId] = useState(null);
     const [deleting, setDeleting] = useState(false);
     const [selectedNote, setSelectedNote] = useState(null);
+
+    useEffect(() => {
+        const fetchArchives = async () => {
+            try {
+                setLoading(true);
+                const res = await api.get("/notes/get-archive-note");
+                if (res.data?.success) {
+                    setNoteList(res.data?.notes || [])
+                }
+            } catch (error) {
+                console.error("Failed to fetch archives", error);
+                setNoteList([]);
+            } finally {
+                setLoading(false);
+           }
+        }
+        
+        fetchArchives();
+    }, [])
 
     const handleNoteClick = (note) => {
         setSelectedNote(note);
@@ -68,6 +88,14 @@ export default function ArchiveList({ notes }) {
             notify.error(err?.response?.data?.message || "Cannot unarchive note")
         }
     }
+    
+    if (loading) {
+        return (
+            <div className="flex items-center justify-center h-screen">
+                Loading archives...
+            </div>
+        )
+    }
 
 
     return (
@@ -83,7 +111,7 @@ export default function ArchiveList({ notes }) {
                     {noteList.map((note) => (
                         <div
                             key={note.id}
-                            className="group relative overflow-hidden rounded-xl border border-gray-300 p-5 shadow-sm transition hover:-translate-y-1 hover:shadow-md"
+                            className="group relative overflow-hidden rounded-xl border border-gray-300 dark:border-gray-700 p-5 shadow-sm transition hover:-translate-y-1 hover:shadow-md"
                         >
                             {/* Title */}
                             <h3 className="mb-2 truncate text-lg font-semibold text-gray-900 dark:text-white">
