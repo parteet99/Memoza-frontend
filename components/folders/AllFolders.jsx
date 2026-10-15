@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
     Folder,
     Eye,
@@ -15,7 +15,8 @@ import ConfirmationModal from "../ui/ConfirmationModal";
 
 export default function AllFolders({ folder }) {
     const router = useRouter();
-    const [search, setSearch] = useState("");
+    const [foldersList, setFolderList] = useState([]);
+    const [loading, setLoading] = useState(true);
     const [openCreateModal, setOpenCreateModal] = useState(false);
     const [openFolderEdit, setOpenFolderEdit] = useState(false);
     const [selectedFolder, setSelectedFolder] = useState(null);
@@ -23,7 +24,26 @@ export default function AllFolders({ folder }) {
     const [deleteFolderId, setDeleteFolderId] = useState(null);
     const [deleting, setDeleting] = useState(false);
 
-    const foldersList = folder?.folders || []
+    // const foldersList = folder?.folders || []
+
+    useEffect(() => {
+        const fetchFolders = async () => {
+            try {
+                setLoading(true);
+                const res = await api.get("/folders/get-folders");
+                if (res.data?.success) {
+                    setFolderList(res.data?.folders || []);
+                }
+            } catch (error) {
+                console.error("Failed to fetch folder", error);
+                setFolderList([]);
+            } finally {
+                setLoading(false);
+            }
+        }
+
+        fetchFolders();
+    }, [])
 
     const handleDeleteFolder = async () => {
         if (deleteFolderId === null) return;
@@ -45,6 +65,14 @@ export default function AllFolders({ folder }) {
         } finally {
             setDeleting(false);
         }
+    }
+
+    if (loading) {
+        return (
+            <div className="flex items-center justify-center h-screen">
+               Loading folders...
+            </div>
+        )
     }
 
     return (

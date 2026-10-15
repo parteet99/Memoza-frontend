@@ -2,17 +2,20 @@
 
 import { useEffect, useState } from "react";
 import { Eye, Trash2 } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 
 import NoteModal from "../notes/NoteModal";
 import ConfirmationModal from "../ui/ConfirmationModal";
 import api from "@/lib/api";
 import { notify } from "@/lib/notification";
 
-export default function SingleFolder({ folder }) {
+export default function SingleFolder() {
     const router = useRouter();
+    const { slug } = useParams();
 
-    const [noteList, setNoteList] = useState(folder?.notes || []);
+    const [noteList, setNoteList] = useState([]);
+    const [folder, setFolder] = useState(null);
+    const [loading, setLoading] = useState(true);
     const [selectedNote, setSelectedNote] = useState(null);
     const [showCreateModal, setShowCreateModal] = useState(false);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -20,8 +23,30 @@ export default function SingleFolder({ folder }) {
     const [deleting, setDeleting] = useState(false);
 
     useEffect(() => {
-        setNoteList(folder?.notes || []);
-    }, [folder]);
+        if (!slug) return;
+
+        const fetchFolder = async () => {
+            try {
+                setLoading(true);
+                const res = await api.get(
+                    `/folders/get-folder-notes?id=${slug}`
+                );
+                if (res.data?.success) {
+                    const folderData = res.data.folder;
+                    setFolder(folderData);
+                    setNoteList(folderData?.notes || []);
+                }
+            } catch (error) {
+                console.error("Failed to get folder notes:", error);
+                setFolder(null);
+                setNoteList([]);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchFolder();
+    }, [slug]);
 
     const handleNoteClick = (note) => {
         setSelectedNote(note);
@@ -71,6 +96,14 @@ export default function SingleFolder({ folder }) {
         } finally {
             setDeleting(false);
         }
+    }
+
+    if (loading) {
+        return (
+            <div className="flex items-center justify-center h-screen">
+              Loading notes...
+            </div>
+        )
     }
 
     return (
