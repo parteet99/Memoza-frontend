@@ -62,15 +62,18 @@ export default function LoginPage() {
                 formData
             )
             if (res?.data?.success) {
-                notify.success(res?.data?.message || "Login successful");
-                const user = res?.data?.user;
+                const user = res.data.user;
 
                 if (user) {
                     document.cookie = `userId=${user.id}; path=/; max-age=${60 * 60 * 24 * 7}`;
                     document.cookie = `userName=${encodeURIComponent(user.name)}; path=/; max-age=${60 * 60 * 24 * 7}`;
                 }
+
+                router.replace("/dashboard");
+                router.refresh();
+            } else {
+                notify.error(res.data?.message || "Login failed");
             }
-            router.push("/dashboard");
         } catch (err) {
             console.error("Login error:", err);
             notify.error(err.message || "Invalid email or password");
