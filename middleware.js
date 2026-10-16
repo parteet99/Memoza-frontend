@@ -12,6 +12,12 @@ export function middleware(request) {
         }
         return NextResponse.next();
     }
+
+    if (!token) {
+        return NextResponse.redirect(new URL("/login", request.url));
+    }
+
+    return NextResponse.next();
 }
 
 export const config = {
@@ -24,6 +30,7 @@ export const config = {
         "/trash",
         "/change-password",
         "/favorites",
-        "/archive"
+        "/archive",
+        "/dashboard"
     ]
 }
