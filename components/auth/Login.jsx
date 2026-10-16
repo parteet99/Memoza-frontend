@@ -62,6 +62,7 @@ export default function LoginPage() {
                 formData
             )
             if (res?.data?.success) {
+                notify.success(res.data?.message || "Login successfull");
                 const user = res.data.user;
 
                 if (user) {
