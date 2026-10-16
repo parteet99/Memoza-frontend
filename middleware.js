@@ -23,7 +23,7 @@ export function middleware(request) {
 export const config = {
     matcher: [
         "/",
-        "login",
+        "/login",
         "/profile",
         "/notes",
         "/folders",
