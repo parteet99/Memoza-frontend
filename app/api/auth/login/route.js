@@ -5,7 +5,7 @@ export async function POST(request) {
         const body = await request.json();
 
         const response = await fetch(
-            `${process.env.BACKEND_URL}/auth/login`,
+            `${process.env.BACKEND_URL}/api/auth/login`,
             {
                 method: "POST",
                 headers: {
