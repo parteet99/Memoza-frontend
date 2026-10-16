@@ -13,9 +13,9 @@ export function middleware(request) {
         return NextResponse.next();
     }
 
-    // if (!token) {
-    //     return NextResponse.redirect(new URL("/login", request.url));
-    // }
+    if (!token) {
+        return NextResponse.redirect(new URL("/login", request.url));
+    }
 
     return NextResponse.next();
 }
@@ -23,6 +23,7 @@ export function middleware(request) {
 export const config = {
     matcher: [
         "/",
+        "login",
         "/profile",
         "/notes",
         "/folders",

@@ -70,8 +70,7 @@ export default function LoginPage() {
                     document.cookie = `userName=${encodeURIComponent(user.name)}; path=/; max-age=${60 * 60 * 24 * 7}`;
                 }
 
-                router.replace("/dashboard");
-                router.refresh();
+                router.push("/dashboard");
             } else {
                 notify.error(res.data?.message || "Login failed");
             }
