@@ -57,22 +57,13 @@ export default function LoginPage() {
         setLoading(true);
 
         try {
-            const res = await fetch("/api/auth/login", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(formData),
-            });
-
-            const data = await res.json();
-
-            if (!res.ok || !data.success) {
-                throw new Error(data.message || data.error || "Login failed");
-            }
-            if (data?.success) {
-                notify.success(data?.message || "Login successfull");
-                const user = data.user;
+            const res = await api.post(
+                "/auth/login",
+                formData
+            )
+            if (res?.data?.success) {
+                notify.success(res.data?.message || "Login successfull");
+                const user = res.data.user;
 
                 if (user) {
                     document.cookie = `userId=${user.id}; path=/; max-age=${60 * 60 * 24 * 7}`;
@@ -81,7 +72,7 @@ export default function LoginPage() {
 
                 router.push("/dashboard");
             } else {
-                notify.error(data?.message || "Login failed");
+                notify.error(res.data?.message || "Login failed");
             }
         } catch (err) {
             console.error("Login error:", err);
