@@ -2,6 +2,7 @@
 import Sidebar from "@/components/layout/Sidebar";
 import { useState } from "react";
 import MobileHeader from "@/components/layout/MobileHeader";
+import AuthGuard from "@/lib/AuthGuard";
 
 export default function DashboardLayout({ children }) {
     const [mobileOpen, setMobileOpen] = useState(false);
@@ -12,7 +13,7 @@ export default function DashboardLayout({ children }) {
             <div className="flex min-w-0 flex-1 flex-col">
                 <MobileHeader onMenuClick={() => setMobileOpen(true)} />
                 <main className="min-w-0 min-h-0 flex-1 overflow-y-auto">
-                        {children}
+                    <AuthGuard>{children}</AuthGuard>
                 </main>
             </div>
 

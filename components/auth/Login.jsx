@@ -1,12 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import api from "@/lib/api";
 import { notify } from "@/lib/notification";
 import Image from "next/image";
-
 
 export default function LoginPage() {
     const [formData, setFormData] = useState({
@@ -15,7 +14,14 @@ export default function LoginPage() {
     })
     const [error, setError] = useState({});
     const [loading, setLoading] = useState(false);
+    const [checking, setChecking] = useState(true);
     const router = useRouter();
+
+    useEffect(() => {
+        api.get("/auth/me")
+            .then(() => router.replace("/dashboard")) //token valid skip form
+            .catch(() => setChecking(false)) //no token show login form
+    }, [router])
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -81,6 +87,8 @@ export default function LoginPage() {
             setLoading(false);
         }
     };
+
+    if (checking) return null;
     return (
         <main className="flex min-h-screen items-center justify-center bg-[var(--background)] px-4 text-[var(--foreground)]">
             <div className="w-full max-w-md">
