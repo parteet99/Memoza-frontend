@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import api from "@/lib/api";
+import { Eye, EyeOff } from "lucide-react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { notify } from "@/lib/notification";
@@ -16,6 +17,7 @@ export default function SignupPage() {
     })
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState({});
+    const [showPassword, setShowPassword] = useState(false);
     const router = useRouter();
 
     const handleChange = async (e) => {
@@ -192,14 +194,15 @@ export default function SignupPage() {
                                 Password
                             </label>
 
-                            <input
-                                id="password"
-                                name="password"
-                                type="password"
-                                placeholder="Create a password"
-                                value={formData.password}
-                                onChange={handleChange}
-                                className={`
+                            <div className="relative">
+                                <input
+                                    id="password"
+                                    name="password"
+                                    type={showPassword ? "text" : "password"}
+                                    placeholder="Create a password"
+                                    value={formData.password}
+                                    onChange={handleChange}
+                                    className={`
                                     h-11 w-full rounded-lg
                                     border
                                     bg-[var(--background)]
@@ -212,7 +215,16 @@ export default function SignupPage() {
                                     focus:border-[var(--foreground)]
                                     ${error.password ? "border-red-500 focus:border-red-500" : "border-[var(--border)]"}
                                 `}
-                            />
+                                />
+                            <button
+                                type="button"
+                                onClick={(e) => setShowPassword((prev) => !prev)}
+                                aria-label={showPassword ? "Hide password" : "Show password"}
+                                className="absolute inset-y-0 right-0 flex items-center px-3 text-[var(--muted-foreground)] hover:text-[-var(--foreground)]"
+                            >
+                                {showPassword ? <Eye size={14} /> : <EyeOff size={14} />}
+                            </button>
+                            </div>
                         </div>
                         {error.password && (
                             <p className="text-xs text-red-500">
