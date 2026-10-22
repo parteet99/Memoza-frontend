@@ -84,7 +84,7 @@ export default function LoginPage() {
             }
         } catch (err) {
             console.error("Login error:", err);
-            notify.error(err.message || "Invalid email or password");
+            notify.error(err.response?.data?.message || "Something went wrong. Please try again later");
         } finally {
             setLoading(false);
         }
