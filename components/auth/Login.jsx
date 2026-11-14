@@ -17,13 +17,20 @@ export default function LoginPage() {
     const [loading, setLoading] = useState(false);
     const [checking, setChecking] = useState(true);
     const [showPassword, setShowPassword] = useState(false);
+    const [showWakeMessage, setShowWakeMessage] = useState(false);
     const router = useRouter();
 
     useEffect(() => {
         api.get("/auth/me")
-            .then(() => router.replace("/dashboard")) //token valid skip form
-            .catch(() => setChecking(false)) //no token show login form
+        .then(() => router.replace("/dashboard")) //token valid skip form
+        .catch(() => setChecking(false)) //no token show login form
     }, [router])
+    
+    useEffect(() => {
+        if (!checking) return;
+        const timer = setTimeout(() => setShowWakeMessage(true), 2000);
+        return () => clearTimeout(timer);
+    }, [checking])
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -90,7 +97,20 @@ export default function LoginPage() {
         }
     };
 
-    if (checking) return null;
+    if (checking) {
+        return (
+            <main className="flex min-h-screen flex-col items-center justify-center gap-6 bg-[var(--background)] px-4">
+                <div className="dots">
+                    <span></span><span></span><span></span>
+                </div>
+                {showWakeMessage && (
+                    <p className="max-w-xs text-center text-sm text-[var(--muted-foreground)]">
+                        Waking up the server. This can take up to a minute on the free tier, thanks for your patience.
+                    </p>
+                )}
+            </main>
+        );
+    }
     return (
         <main className="flex min-h-screen items-center justify-center bg-[var(--background)] px-4 text-[var(--foreground)]">
             <div className="w-full max-w-md">
