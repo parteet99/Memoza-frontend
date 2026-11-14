@@ -287,7 +287,7 @@ export default function AllNotes() {
                                     Import
                                 </button>
                                 {showImportMenu && (
-                                    <div className="absolute right-0 z-50 mt-2 w-40 overflow-hidden rounded-lg border border-gray-200 bg-white shadow-md dark:border-gray-700 dark:bg-gray-900">
+                                    <div className="absolute lg:right-0 z-50 mt-2 w-40 overflow-hidden rounded-lg border border-gray-200 bg-white shadow-md dark:border-gray-700 dark:bg-gray-900">
                                         <button
                                             type="button"
                                             onClick={() => handleImportClick("json")}
