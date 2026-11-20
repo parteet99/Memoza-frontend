@@ -130,7 +130,8 @@ export default function AllNotes() {
             })
             if (res?.data?.success) {
                 notify.success(res?.data?.message || "Note imported successfully")
-                router.refresh();
+                setSearch("");
+                setRefreshKey((prev) => prev + 1);
             }
         } catch (error) {
             console.error("Import error", error);

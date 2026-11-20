@@ -91,6 +91,7 @@ export default function LoginPage() {
             }
         } catch (err) {
             console.error("Login error:", err);
+            // console.log(err.response.data.message);
             notify.error(err.response?.data?.message || "Something went wrong. Please try again later");
         } finally {
             setLoading(false);
